@@ -1,0 +1,1603 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartQueue | Staff Control System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --dark: #172033;
+            --background: #f5f7fb;
+            --muted: #64748b;
+            --border: #e5e7eb;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--dark);
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px #00000008;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .sidebar {
+            background: white;
+            border-right: 1px solid var(--border);
+            min-height: calc(100vh - 65px);
+            padding: 25px 15px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            text-align: left;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background: #eef2ff;
+            color: var(--primary);
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .card-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 23px;
+            height: 100%;
+            box-shadow: 0 4px 15px #00000004;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: 800;
+            margin-top: 10px;
+        }
+
+        .stat-icon {
+            font-size: 25px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: #3730a3;
+            border-color: #3730a3;
+        }
+
+        .now-serving {
+            background: linear-gradient(135deg, #4338ca, #6366f1);
+            color: white;
+            border-radius: 18px;
+            padding: 30px;
+        }
+
+        .now-serving .token-number {
+            font-size: clamp(38px, 5vw, 58px);
+            font-weight: 800;
+        }
+
+        .queue-item {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 17px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+
+        .token-number {
+            color: var(--primary);
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .status-waiting {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .status-called {
+            color: #6d28d9;
+            background: #ede9fe;
+        }
+
+        .status-serving {
+            color: #1d4ed8;
+            background: #dbeafe;
+        }
+
+        .status-completed {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .status-skipped {
+            color: #9f1239;
+            background: #ffe4e6;
+        }
+
+        .status-cancelled {
+            color: #475569;
+            background: #e2e8f0;
+        }
+
+        .table th {
+            background: #f8fafc;
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .table td {
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .section-view {
+            display: none;
+        }
+
+        .section-view.active {
+            display: block;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 43px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons .btn {
+            font-size: 12px;
+        }
+
+        .live-indicator {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+            margin-right: 7px;
+        }
+
+        .backend-warning {
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid #fed7aa;
+            border-radius: 10px;
+            padding: 13px 16px;
+            font-size: 13px;
+        }
+
+        #notificationArea {
+            position: fixed;
+            right: 20px;
+            top: 80px;
+            z-index: 2000;
+            width: min(380px, calc(100vw - 40px));
+        }
+
+        @media(max-width: 767px) {
+            .sidebar {
+                min-height: auto;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .main-content {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand" href="#" onclick="showView('dashboard')">
+            🎫 SmartQueue
+        </a>
+
+        <div class="d-flex align-items-center gap-3">
+            <span class="small muted d-none d-md-inline" id="staffLabel">
+                Staff access required
+            </span>
+
+            <button class="btn btn-outline-primary btn-sm"
+                    id="loginButton" onclick="openLogin()">
+                Staff Login
+            </button>
+
+            <button class="btn btn-outline-danger btn-sm"
+                    id="logoutButton" onclick="logout()" hidden>
+                Logout
+            </button>
+        </div>
+    </div>
+</nav>
+
+<div id="notificationArea" aria-live="polite"></div>
+
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- SIDEBAR -->
+        <aside class="col-md-3 col-lg-2 sidebar">
+            <button class="active" data-view="dashboard"
+                    onclick="showView('dashboard')">
+                📊 Dashboard
+            </button>
+
+            <button data-view="live" onclick="showView('live')">
+                📺 Live Queue Display
+            </button>
+
+            <button data-view="tokens" onclick="showView('tokens')">
+                🎫 All Tokens
+            </button>
+
+            <button data-view="history" onclick="showView('history')">
+                🕒 Status History
+            </button>
+        </aside>
+
+
+        <!-- MAIN -->
+        <main class="col-md-9 col-lg-10 main-content">
+
+            <div class="backend-warning mb-4">
+                <strong>Backend required:</strong>
+                This interface does not authenticate staff or change token
+                statuses by itself. The PHP endpoints below must be installed
+                and secured before operational use.
+            </div>
+
+
+            <!-- DASHBOARD -->
+            <section id="dashboard" class="section-view active">
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1">Queue Dashboard</h2>
+                        <p class="muted mb-0">
+                            Monitor customers and manage service flow.
+                        </p>
+                    </div>
+
+                    <button class="btn btn-primary"
+                            onclick="callNextToken()">
+                        📣 Call Next Token
+                    </button>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-xl-2">
+                        <div class="card-box">
+                            <div class="stat-icon">🎫</div>
+                            <div class="stat-number" id="totalCount">--</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-xl-2">
+                        <div class="card-box">
+                            <div class="stat-icon">⏳</div>
+                            <div class="stat-number" id="waitingCount">--</div>
+                            <div class="stat-label">Waiting</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-xl-2">
+                        <div class="card-box">
+                            <div class="stat-icon">📣</div>
+                            <div class="stat-number" id="calledCount">--</div>
+                            <div class="stat-label">Called</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-xl-2">
+                        <div class="card-box">
+                            <div class="stat-icon">👤</div>
+                            <div class="stat-number" id="servingCount">--</div>
+                            <div class="stat-label">Serving</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-xl-2">
+                        <div class="card-box">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-number" id="completedCount">--</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-xl-2">
+                        <div class="card-box">
+                            <div class="stat-icon">⏭️</div>
+                            <div class="stat-number" id="skippedCount">--</div>
+                            <div class="stat-label">Skipped</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+
+                    <div class="col-xl-7">
+                        <div class="now-serving">
+                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                <span class="small fw-bold">
+                                    <span class="live-indicator"></span>
+                                    NOW SERVING
+                                </span>
+
+                                <span id="servingService">Service desk</span>
+                            </div>
+
+                            <div class="token-number text-white mt-3"
+                                 id="currentToken">
+                                --
+                            </div>
+
+                            <div id="currentCustomer" class="mt-2">
+                                No token currently being served.
+                            </div>
+
+                            <div class="d-flex gap-2 flex-wrap mt-4">
+                                <button class="btn btn-light"
+                                        onclick="changeCurrentStatus('Serving')">
+                                    Start Serving
+                                </button>
+
+                                <button class="btn btn-success"
+                                        onclick="changeCurrentStatus('Completed')">
+                                    Complete Token
+                                </button>
+
+                                <button class="btn btn-outline-light"
+                                        onclick="recallCurrentToken()">
+                                    Recall Token
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card-box mt-4">
+                            <h5 class="fw-bold mb-3">Next Customers</h5>
+                            <div id="nextCustomers">
+                                Queue data has not been loaded.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-5">
+                        <div class="card-box">
+                            <h5 class="fw-bold mb-3">Queue Controls</h5>
+
+                            <label class="form-label" for="serviceFilter">
+                                Service
+                            </label>
+
+                            <select id="serviceFilter" class="form-select mb-3">
+                                <option value="">All Services</option>
+                            </select>
+
+                            <label class="form-label" for="queueDateFilter">
+                                Queue Date
+                            </label>
+
+                            <input type="date" id="queueDateFilter"
+                                   class="form-control mb-3">
+
+                            <button class="btn btn-primary w-100"
+                                    onclick="loadDashboard()">
+                                Refresh Dashboard
+                            </button>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+                                <span class="muted">Skipped</span>
+                                <strong id="skippedSummary">--</strong>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-3">
+                                <span class="muted">Cancelled</span>
+                                <strong id="cancelledSummary">--</strong>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-3">
+                                <span class="muted">Queue Date</span>
+                                <strong id="displayDate">--</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <!-- LIVE DISPLAY -->
+            <section id="live" class="section-view">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold">SmartQueue Live Display</h2>
+                    <p class="muted">
+                        Current service status and customers waiting.
+                    </p>
+                </div>
+
+                <div class="now-serving text-center mb-4">
+                    <div class="fw-bold">NOW SERVING</div>
+                    <div class="token-number text-white mt-3"
+                         id="liveCurrentToken">
+                        --
+                    </div>
+                    <h5 id="liveCurrentService">Please wait for an update</h5>
+                </div>
+
+                <div class="card-box">
+                    <h4 class="fw-bold mb-4">UP NEXT</h4>
+                    <div id="liveNextCustomers">
+                        Waiting for queue data.
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ALL TOKENS -->
+            <section id="tokens" class="section-view">
+                <div class="mb-4">
+                    <h2 class="fw-bold">Token Management</h2>
+                    <p class="muted">
+                        Search and filter token records.
+                    </p>
+                </div>
+
+                <div class="card-box">
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label" for="searchToken">
+                                Token or Customer
+                            </label>
+
+                            <input id="searchToken" class="form-control"
+                                   placeholder="Search...">
+                        </div>
+
+                        <div class="col-lg-2 col-md-6">
+                            <label class="form-label" for="filterStatus">
+                                Status
+                            </label>
+
+                            <select id="filterStatus" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option>Waiting</option>
+                                <option>Called</option>
+                                <option>Serving</option>
+                                <option>Completed</option>
+                                <option>Skipped</option>
+                                <option>Cancelled</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label" for="filterService">
+                                Service
+                            </label>
+
+                            <select id="filterService" class="form-select">
+                                <option value="">All Services</option>
+                            </select>
+                        </div>
+
+                        <div class="col-lg-2 col-md-6">
+                            <label class="form-label" for="filterDate">
+                                Date
+                            </label>
+
+                            <input type="date" id="filterDate"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-lg-2 d-flex align-items-end">
+                            <button class="btn btn-primary w-100"
+                                    onclick="loadTokens()">
+                                Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="tokenMessage" role="status"></div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Customer</th>
+                                    <th>Service</th>
+                                    <th>Created</th>
+                                    <th>Status</th>
+                                    <th>Staff Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="tokenTable">
+                                <tr>
+                                    <td colspan="6">
+                                        Token data has not been loaded.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- HISTORY -->
+            <section id="history" class="section-view">
+                <h2 class="fw-bold">Token Status History</h2>
+
+                <p class="muted">
+                    Review who changed a token's status and when.
+                </p>
+
+                <div class="card-box">
+                    <div id="historyMessage" role="status"></div>
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Previous Status</th>
+                                    <th>New Status</th>
+                                    <th>Staff Member</th>
+                                    <th>Timestamp</th>
+                                    <th>Note</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="historyTable">
+                                <tr>
+                                    <td colspan="6">
+                                        History data has not been loaded.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+
+<!-- STAFF LOGIN MODAL -->
+<div class="modal fade" id="loginModal" tabindex="-1"
+     aria-labelledby="loginTitle" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="loginTitle">
+                    Authorized Staff Login
+                </h5>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="loginMessage" role="status"></div>
+
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label" for="staffUsername">
+                            Username
+                        </label>
+
+                        <input class="form-control" id="staffUsername"
+                               autocomplete="username" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="staffPassword">
+                            Password
+                        </label>
+
+                        <input type="password" class="form-control"
+                               id="staffPassword"
+                               autocomplete="current-password" required>
+                    </div>
+
+                    <button class="btn btn-primary w-100" type="submit">
+                        Sign In
+                    </button>
+                </form>
+
+                <p class="muted small mt-3 mb-0">
+                    Credentials must be verified by the PHP server.
+                    No credentials are stored in this HTML file.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ACTION CONFIRMATION MODAL -->
+<div class="modal fade" id="actionModal" tabindex="-1"
+     aria-labelledby="actionTitle" aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="actionTitle">
+                    Confirm Queue Action
+                </h5>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p id="actionDescription">
+                    Confirm this action?
+                </p>
+
+                <label for="actionReason" class="form-label">
+                    Reason or note (optional)
+                </label>
+
+                <textarea id="actionReason" class="form-control"
+                          maxlength="500" rows="3"></textarea>
+
+                <div class="mt-3 d-flex gap-2 justify-content-end">
+                    <button class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button class="btn btn-primary"
+                            id="confirmActionButton">
+                        Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+"use strict";
+
+/*
+|--------------------------------------------------------------------------
+| SMARTQUEUE STAFF FRONTEND
+|--------------------------------------------------------------------------
+|
+| Expected PHP endpoints:
+|
+| POST api/auth/login.php
+| POST api/auth/logout.php
+| GET  api/auth/me.php
+| GET  api/admin/dashboard.php
+| GET  api/admin/tokens.php
+| POST api/admin/tokens/{id}/call.php
+| POST api/admin/tokens/{id}/serve.php
+| POST api/admin/tokens/{id}/complete.php
+| POST api/admin/tokens/{id}/skip.php
+| POST api/admin/tokens/{id}/cancel.php
+| POST api/admin/tokens/{id}/recall.php
+| GET  api/admin/history.php
+| GET  api/services.php
+|
+| The PHP server must authenticate and authorize every admin request.
+| Never trust a staff identity supplied by browser JavaScript.
+|--------------------------------------------------------------------------
+*/
+
+const API = {
+    login: "api/auth/login.php",
+    logout: "api/auth/logout.php",
+    me: "api/auth/me.php",
+    services: "api/services.php",
+    dashboard: "api/admin/dashboard.php",
+    tokens: "api/admin/tokens.php",
+    history: "api/admin/history.php"
+};
+
+const ALLOWED_STATUSES = [
+    "Waiting",
+    "Called",
+    "Serving",
+    "Completed",
+    "Skipped",
+    "Cancelled"
+];
+
+let authenticated = false;
+let currentStaff = null;
+let currentToken = null;
+let tokens = [];
+let actionRequest = null;
+let actionInProgress = false;
+let pollInProgress = false;
+
+const loginModal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById("loginModal")
+);
+
+const actionModal = bootstrap.Modal.getOrCreateInstance(
+    document.getElementById("actionModal")
+);
+
+
+/* ---------- API REQUESTS ---------- */
+
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        credentials: "same-origin",
+        cache: "no-store",
+        headers: {
+            "Accept": "application/json",
+            ...(options.body ? {
+                "Content-Type": "application/json"
+            } : {}),
+            ...(options.headers || {})
+        }
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+        if (response.status === 401) {
+            authenticated = false;
+            updateAuthUI();
+        }
+
+        if (response.status === 403) {
+            throw new Error("You are not authorized to perform this action.");
+        }
+
+        if (response.status === 409) {
+            throw new Error(
+                data?.message ||
+                "The queue changed. Refresh the dashboard and try again."
+            );
+        }
+
+        throw new Error(
+            data?.message || `Request failed (${response.status}).`
+        );
+    }
+
+    if (!data || typeof data !== "object") {
+        throw new Error("The server returned invalid JSON.");
+    }
+
+    return data;
+}
+
+
+function showNotification(message, type = "success") {
+    const area = document.getElementById("notificationArea");
+    const alert = document.createElement("div");
+
+    alert.className = `alert alert-${type} shadow`;
+    alert.setAttribute("role", "status");
+    alert.textContent = message;
+
+    area.appendChild(alert);
+
+    setTimeout(() => alert.remove(), 5000);
+}
+
+
+function showMessage(elementId, message, type = "danger") {
+    const area = document.getElementById(elementId);
+    area.replaceChildren();
+
+    const alert = document.createElement("div");
+    alert.className = `alert alert-${type}`;
+    alert.textContent = message;
+
+    area.appendChild(alert);
+}
+
+
+function clearMessage(elementId) {
+    document.getElementById(elementId).replaceChildren();
+}
+
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+
+function statusClass(status) {
+    return {
+        Waiting: "status-waiting",
+        Called: "status-called",
+        Serving: "status-serving",
+        Completed: "status-completed",
+        Skipped: "status-skipped",
+        Cancelled: "status-cancelled"
+    }[status] || "status-cancelled";
+}
+
+
+function statusBadge(status) {
+    return `<span class="status ${statusClass(status)}">${escapeHTML(status)}</span>`;
+}
+
+
+/* ---------- AUTHENTICATION ---------- */
+
+function openLogin() {
+    loginModal.show();
+}
+
+
+function updateAuthUI() {
+    document.getElementById("loginButton").hidden = authenticated;
+    document.getElementById("logoutButton").hidden = !authenticated;
+
+    document.getElementById("staffLabel").textContent =
+        authenticated && currentStaff
+            ? "Signed in: " + currentStaff.name
+            : "Staff access required";
+}
+
+
+async function checkAuthentication() {
+    try {
+        const data = await apiRequest(API.me);
+
+        authenticated = Boolean(data.authenticated);
+        currentStaff = data.staff || null;
+
+    } catch (error) {
+        authenticated = false;
+        currentStaff = null;
+    }
+
+    updateAuthUI();
+
+    if (authenticated) {
+        await initializeDashboard();
+    }
+}
+
+
+document.getElementById("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const button = event.submitter;
+    button.disabled = true;
+
+    clearMessage("loginMessage");
+
+    try {
+        const data = await apiRequest(API.login, {
+            method: "POST",
+            body: JSON.stringify({
+                username: document.getElementById("staffUsername").value.trim(),
+                password: document.getElementById("staffPassword").value
+            })
+        });
+
+        authenticated = true;
+        currentStaff = data.staff || null;
+
+        document.getElementById("staffPassword").value = "";
+
+        updateAuthUI();
+        loginModal.hide();
+
+        showNotification("Staff login successful.");
+        await initializeDashboard();
+
+    } catch (error) {
+        showMessage("loginMessage", error.message);
+    } finally {
+        button.disabled = false;
+    }
+});
+
+
+async function logout() {
+    try {
+        await apiRequest(API.logout, { method: "POST" });
+    } catch (error) {
+        showNotification(
+            "Logout could not be confirmed by the server. Check your connection.",
+            "warning"
+        );
+        return;
+    }
+
+    authenticated = false;
+    currentStaff = null;
+    currentToken = null;
+    tokens = [];
+
+    updateAuthUI();
+
+    showNotification("You have logged out.");
+    showView("live");
+}
+
+
+/* ---------- NAVIGATION ---------- */
+
+function showView(viewId) {
+    const views = ["dashboard", "live", "tokens", "history"];
+
+    if (!views.includes(viewId)) {
+        viewId = "live";
+    }
+
+    document.querySelectorAll(".section-view").forEach(section => {
+        section.classList.remove("active");
+    });
+
+    document.getElementById(viewId).classList.add("active");
+
+    document.querySelectorAll("[data-view]").forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.dataset.view === viewId
+        );
+    });
+
+    if (viewId === "dashboard") loadDashboard();
+    if (viewId === "live") loadLiveDisplay();
+    if (viewId === "tokens") loadTokens();
+    if (viewId === "history") loadHistory();
+}
+
+
+/* ---------- SERVICES ---------- */
+
+async function loadServices() {
+    try {
+        const data = await apiRequest(API.services);
+        const services = Array.isArray(data.services) ? data.services : [];
+
+        ["serviceFilter", "filterService"].forEach(id => {
+            const select = document.getElementById(id);
+            const oldValue = select.value;
+
+            select.replaceChildren();
+
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "All Services";
+            select.appendChild(option);
+
+            services.forEach(service => {
+                const serviceOption = document.createElement("option");
+                serviceOption.value = service.id;
+                serviceOption.textContent = service.service_name;
+                select.appendChild(serviceOption);
+            });
+
+            select.value = oldValue;
+        });
+
+    } catch (error) {
+        showNotification("Could not load the service list.", "warning");
+    }
+}
+
+
+/* ---------- DASHBOARD ---------- */
+
+async function loadDashboard() {
+    if (!authenticated) return;
+
+    try {
+        const params = new URLSearchParams();
+
+        const serviceId = document.getElementById("serviceFilter").value;
+        const date = document.getElementById("queueDateFilter").value;
+
+        if (serviceId) params.set("service_id", serviceId);
+        if (date) params.set("date", date);
+
+        const data = await apiRequest(
+            API.dashboard + "?" + params.toString()
+        );
+
+        const summary = data.summary || {};
+
+        document.getElementById("totalCount").textContent =
+            summary.total ?? 0;
+
+        document.getElementById("waitingCount").textContent =
+            summary.waiting ?? 0;
+
+        document.getElementById("calledCount").textContent =
+            summary.called ?? 0;
+
+        document.getElementById("servingCount").textContent =
+            summary.serving ?? 0;
+
+        document.getElementById("completedCount").textContent =
+            summary.completed ?? 0;
+
+        document.getElementById("skippedCount").textContent =
+            summary.skipped ?? 0;
+
+        document.getElementById("skippedSummary").textContent =
+            summary.skipped ?? 0;
+
+        document.getElementById("cancelledSummary").textContent =
+            summary.cancelled ?? 0;
+
+        document.getElementById("displayDate").textContent =
+            data.queue_date || "--";
+
+        currentToken = data.currently_serving || null;
+
+        renderCurrentToken();
+        renderNextCustomers(
+            Array.isArray(data.next_customers)
+                ? data.next_customers
+                : [],
+            "nextCustomers"
+        );
+
+    } catch (error) {
+        showNotification(error.message, "danger");
+    }
+}
+
+
+function renderCurrentToken() {
+    const token = currentToken;
+
+    document.getElementById("currentToken").textContent =
+        token?.token_number || "--";
+
+    document.getElementById("currentCustomer").textContent =
+        token
+            ? `${token.customer_name} · ${token.status}`
+            : "No token currently being served.";
+
+    document.getElementById("servingService").textContent =
+        token?.service_name || "Service desk";
+}
+
+
+/* ---------- NEXT CUSTOMERS ---------- */
+
+function renderNextCustomers(queue, elementId) {
+    const container = document.getElementById(elementId);
+    container.replaceChildren();
+
+    if (queue.length === 0) {
+        container.textContent = "No customers are waiting in the queue.";
+        return;
+    }
+
+    queue.forEach(token => {
+        const item = document.createElement("div");
+        item.className = "queue-item";
+
+        const row = document.createElement("div");
+        row.className = "d-flex justify-content-between align-items-center gap-3";
+
+        const left = document.createElement("div");
+
+        const number = document.createElement("div");
+        number.className = "token-number";
+        number.textContent = token.token_number;
+
+        const detail = document.createElement("div");
+        detail.className = "muted small";
+        detail.textContent =
+            `${token.customer_name} · ${token.service_name}`;
+
+        left.append(number, detail);
+
+        const right = document.createElement("div");
+        right.className = "text-end";
+
+        const badge = document.createElement("div");
+        badge.innerHTML = statusBadge(token.status);
+
+        const wait = document.createElement("div");
+        wait.className = "muted small mt-2";
+        wait.textContent =
+            token.estimated_wait_minutes == null
+                ? ""
+                : `${token.estimated_wait_minutes} min`;
+
+        right.append(badge, wait);
+        row.append(left, right);
+        item.appendChild(row);
+
+        container.appendChild(item);
+    });
+}
+
+
+/* ---------- LIVE DISPLAY ---------- */
+
+async function loadLiveDisplay() {
+    try {
+        const data = await apiRequest("api/queue.php");
+
+        const current = data.currently_serving || null;
+
+        document.getElementById("liveCurrentToken").textContent =
+            current?.token_number || "No customers waiting";
+
+        document.getElementById("liveCurrentService").textContent =
+            current
+                ? `${current.service_name} · ${current.status}`
+                : "Please wait for the next customer.";
+
+        renderNextCustomers(
+            Array.isArray(data.next_customers)
+                ? data.next_customers
+                : [],
+            "liveNextCustomers"
+        );
+
+    } catch (error) {
+        document.getElementById("liveCurrentToken").textContent =
+            "Queue unavailable";
+
+        document.getElementById("liveCurrentService").textContent =
+            "Unable to retrieve live queue information.";
+    }
+}
+
+
+/* ---------- STATUS ACTIONS ---------- */
+
+/*
+ * Every status-changing action is submitted to the PHP backend.
+ * The backend must use a database transaction, lock the token row,
+ * verify the staff session, validate the transition, and record
+ * the authenticated staff ID in a status-history table.
+ */
+
+function openAction(action, token, description) {
+    if (!authenticated) {
+        showNotification("Please sign in as authorized staff.", "warning");
+        openLogin();
+        return;
+    }
+
+    actionRequest = { action, token };
+    document.getElementById("actionDescription").textContent = description;
+    document.getElementById("actionReason").value = "";
+
+    document.getElementById("confirmActionButton").disabled = false;
+
+    actionModal.show();
+}
+
+
+function callNextToken() {
+    openAction(
+        "call",
+        null,
+        "Call the next eligible waiting token in queue order?"
+    );
+}
+
+
+function changeCurrentStatus(status) {
+    if (!currentToken) {
+        showNotification("There is no current token.", "warning");
+        return;
+    }
+
+    const action = status === "Serving" ? "serve" : "complete";
+
+    openAction(
+        action,
+        currentToken,
+        `Change token ${currentToken.token_number} to ${status}?`
+    );
+}
+
+
+function recallCurrentToken() {
+    if (!currentToken) {
+        showNotification("There is no current token to recall.", "warning");
+        return;
+    }
+
+    openAction(
+        "recall",
+        currentToken,
+        `Recall token ${currentToken.token_number}?`
+    );
+}
+
+
+function tokenAction(action, token) {
+    const descriptions = {
+        call: `Call token ${token.token_number}?`,
+        serve: `Start serving token ${token.token_number}?`,
+        complete: `Mark token ${token.token_number} as completed?`,
+        skip: `Skip token ${token.token_number}?`,
+        cancel: `Cancel token ${token.token_number}?`,
+        recall: `Recall token ${token.token_number}?`
+    };
+
+    openAction(action, token, descriptions[action] || "Confirm this action?");
+}
+
+
+document.getElementById("confirmActionButton").addEventListener("click", async () => {
+    if (!actionRequest || actionInProgress) return;
+
+    if (!authenticated) {
+        actionModal.hide();
+        openLogin();
+        return;
+    }
+
+    actionInProgress = true;
+
+    const button = document.getElementById("confirmActionButton");
+    button.disabled = true;
+    button.textContent = "Processing...";
+
+    const request = actionRequest;
+    const reason = document.getElementById("actionReason").value.trim();
+
+    try {
+        let url;
+        let method = "POST";
+
+        if (request.action === "call") {
+            url = "api/admin/tokens/call.php";
+        } else {
+            const id = request.token?.id;
+
+            if (!Number.isInteger(Number(id)) || Number(id) <= 0) {
+                throw new Error("Invalid token ID.");
+            }
+
+            const allowedActions = [
+                "serve",
+                "complete",
+                "skip",
+                "cancel",
+                "recall"
+            ];
+
+            if (!allowedActions.includes(request.action)) {
+                throw new Error("Unsupported queue action.");
+            }
+
+            url = `api/admin/tokens/${Number(id)}/${request.action}.php`;
+        }
+
+        /*
+         * The server must independently validate the action.
+         * The expected_revision field is optional optimistic concurrency
+         * control; the database row lock is still required.
+         */
+        const data = await apiRequest(url, {
+            method,
+            body: JSON.stringify({
+                reason: reason,
+                expected_revision: request.token?.revision ?? null
+            })
+        });
+
+        actionModal.hide();
+
+        showNotification(
+            data.message || "Queue action confirmed by the server."
+        );
+
+        await initializeDashboard();
+
+    } catch (error) {
+        showNotification(error.message, "danger");
+    } finally {
+        actionInProgress = false;
+        button.disabled = false;
+        button.textContent = "Confirm";
+        actionRequest = null;
+    }
+});
+
+
+/* ---------- TOKEN LIST AND FILTERING ---------- */
+
+async function loadTokens() {
+    if (!authenticated) return;
+
+    const params = new URLSearchParams();
+
+    const search = document.getElementById("searchToken").value.trim();
+    const status = document.getElementById("filterStatus").value;
+    const service = document.getElementById("filterService").value;
+    const date = document.getElementById("filterDate").value;
+
+    if (search) params.set("search", search);
+    if (status) params.set("status", status);
+    if (service) params.set("service_id", service);
+    if (date) params.set("date", date);
+
+    try {
+        const data = await apiRequest(
+            API.tokens + "?" + params.toString()
+        );
+
+        tokens = Array.isArray(data.tokens) ? data.tokens : [];
+
+        renderTokenTable();
+
+        clearMessage("tokenMessage");
+
+    } catch (error) {
+        showMessage("tokenMessage", error.message);
+    }
+}
+
+
+function renderTokenTable() {
+    const body = document.getElementById("tokenTable");
+    body.replaceChildren();
+
+    if (tokens.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 6;
+        cell.textContent = "No matching tokens found.";
+
+        row.appendChild(cell);
+        body.appendChild(row);
+        return;
+    }
+
+    tokens.forEach(token => {
+        const row = document.createElement("tr");
+
+        const values = [
+            token.token_number,
+            token.customer_name,
+            token.service_name,
+            token.created_at
+        ];
+
+        values.forEach(value => {
+            const cell = document.createElement("td");
+            cell.textContent = value ?? "--";
+            row.appendChild(cell);
+        });
+
+        const statusCell = document.createElement("td");
+        statusCell.innerHTML = statusBadge(token.status);
+        row.appendChild(statusCell);
+
+        const actionsCell = document.createElement("td");
+        const buttons = document.createElement("div");
+        buttons.className = "action-buttons";
+
+        const allowedActions = {
+            Waiting: [
+                ["call", "Call", "primary"],
+                ["skip", "Skip", "warning"],
+                ["cancel", "Cancel", "danger"]
+            ],
+            Called: [
+                ["serve", "Serve", "primary"],
+                ["recall", "Recall", "secondary"],
+                ["skip", "Skip", "warning"],
+                ["cancel", "Cancel", "danger"]
+            ],
+            Serving: [
+                ["complete", "Complete", "success"],
+                ["cancel", "Cancel", "danger"]
+            ],
+            Skipped: [
+                ["recall", "Recall", "secondary"],
+                ["cancel", "Cancel", "danger"]
+            ],
+            Completed: [],
+            Cancelled: []
+        };
+
+        (allowedActions[token.status] || []).forEach(([action, label, style]) => {
+            const button = document.createElement("button");
+
+            button.className = `btn btn-sm btn-outline-${style}`;
+            button.textContent = label;
+
+            button.addEventListener("click", () => tokenAction(action, token));
+
+            buttons.appendChild(button);
+        });
+
+        actionsCell.appendChild(buttons);
+        row.appendChild(actionsCell);
+        body.appendChild(row);
+    });
+}
+
+
+/* ---------- STATUS HISTORY ---------- */
+
+async function loadHistory() {
+    if (!authenticated) return;
+
+    try {
+        const data = await apiRequest(API.history);
+        const history = Array.isArray(data.history) ? data.history : [];
+
+        const body = document.getElementById("historyTable");
+        body.replaceChildren();
+
+        if (history.length === 0) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+
+            cell.colSpan = 6;
+            cell.textContent = "No status history is available.";
+
+            row.appendChild(cell);
+            body.appendChild(row);
+            return;
+        }
+
+        history.forEach(item => {
+            const row = document.createElement("tr");
+
+            [
+                item.token_number,
+                item.previous_status || "—",
+                item.new_status,
+                item.staff_name,
+                item.changed_at,
+                item.reason || "—"
+            ].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value ?? "—";
+                row.appendChild(cell);
+            });
+
+            body.appendChild(row);
+        });
+
+        clearMessage("historyMessage");
+
+    } catch (error) {
+        showMessage("historyMessage", error.message);
+    }
+}
+
+
+/* ---------- INITIALIZATION AND POLLING ---------- */
+
+async function initializeDashboard() {
+    await loadServices();
+
+    await Promise.allSettled([
+        loadDashboard(),
+        loadLiveDisplay(),
+        loadTokens(),
+        loadHistory()
+    ]);
+}
+
+
+async function pollQueue() {
+    if (pollInProgress) return;
+
+    pollInProgress = true;
+
+    try {
+        const activeView = document.querySelector(".section-view.active");
+
+        if (activeView?.id === "live") {
+            await loadLiveDisplay();
+        }
+
+        if (authenticated && activeView?.id === "dashboard") {
+            await loadDashboard();
+        }
+
+        if (authenticated && activeView?.id === "tokens") {
+            await loadTokens();
+        }
+    } finally {
+        pollInProgress = false;
+    }
+}
+
+
+setInterval(pollQueue, 4000);
+
+checkAuthentication();
+</script>
+
+</body>
+</html>
+```

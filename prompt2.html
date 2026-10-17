@@ -1,0 +1,1163 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQueue | Digital Queue Management</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --dark: #172033;
+            --background: #f5f7fb;
+            --muted: #64748b;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--background);
+            color: var(--dark);
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px #00000008;
+        }
+
+        .navbar-brand {
+            color: var(--primary);
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .hero {
+            background: linear-gradient(130deg, #eef2ff, white);
+            padding: 85px 0;
+        }
+
+        .hero h1 {
+            font-size: clamp(35px, 5vw, 55px);
+            font-weight: 800;
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+        }
+
+        .section {
+            padding: 65px 0;
+        }
+
+        .card-box {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid #e5e7eb;
+            height: 100%;
+            box-shadow: 0 5px 20px #00000005;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: #3730a3;
+            border-color: #3730a3;
+        }
+
+        .form-control, .form-select {
+            min-height: 45px;
+        }
+
+        .token-number {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-number {
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .status {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .waiting {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .serving {
+            color: #1d4ed8;
+            background: #dbeafe;
+        }
+
+        .completed {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .queue-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .alert {
+            overflow-wrap: anywhere;
+        }
+
+        footer {
+            padding: 35px 0;
+            color: white;
+            background: var(--dark);
+        }
+
+        @media(max-width: 768px) {
+            .hero {
+                padding: 55px 0;
+            }
+
+            .section {
+                padding: 45px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="#home" onclick="showPage('home')">
+            🎫 SmartQueue
+        </a>
+
+        <button class="navbar-toggler" data-bs-toggle="collapse"
+                data-bs-target="#navigation" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navigation">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="#home"
+                       onclick="showPage('home')">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#queue"
+                       onclick="showPage('queue')">Live Queue</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#track"
+                       onclick="showPage('track')">Track Token</a>
+                </li>
+
+                <li class="nav-item">
+                    <button class="btn btn-primary ms-lg-3"
+                            onclick="showPage('generate')">
+                        Generate Token
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<!-- HOME -->
+<main>
+<section id="home" class="page active">
+
+    <div class="hero">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <span class="badge bg-white text-primary p-3 mb-3">
+                        SMARTER QUEUES · BETTER EXPERIENCES
+                    </span>
+
+                    <h1>
+                        Welcome to SmartQueue —
+                        <span>Your Turn, Without the Wait.</span>
+                    </h1>
+
+                    <p class="muted fs-5 mt-4">
+                        Generate your digital token, check your queue
+                        position, and save valuable time without standing
+                        in long lines.
+                    </p>
+
+                    <div class="d-flex gap-3 flex-wrap mt-4">
+                        <button class="btn btn-primary btn-lg"
+                                onclick="showPage('generate')">
+                            Generate Token
+                        </button>
+
+                        <button class="btn btn-outline-primary btn-lg"
+                                onclick="showPage('queue')">
+                            View Queue
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card-box">
+                        <h5 class="fw-bold">Current Queue</h5>
+                        <p class="muted">Live information from the server</p>
+
+                        <hr>
+
+                        <p class="muted mb-1">Currently Serving</p>
+                        <div class="token-number" id="homeCurrent">--</div>
+
+                        <div class="mt-3">
+                            <span class="muted">Customers waiting:</span>
+                            <strong id="homeWaiting">--</strong>
+                        </div>
+
+                        <button class="btn btn-primary w-100 mt-4"
+                                onclick="showPage('queue')">
+                            Check Live Queue
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">How SmartQueue Works</h2>
+                <p class="muted">
+                    Three simple steps to a better queue experience.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card-box">
+                        <h2>📝</h2>
+                        <h5 class="fw-bold">1. Generate Token</h5>
+                        <p class="muted">
+                            Enter your details and choose the required service.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card-box">
+                        <h2>📊</h2>
+                        <h5 class="fw-bold">2. Track Your Position</h5>
+                        <p class="muted">
+                            View your queue position and estimated waiting time.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card-box">
+                        <h2>🔔</h2>
+                        <h5 class="fw-bold">3. Wait for Your Turn</h5>
+                        <p class="muted">
+                            Check your token status before approaching the counter.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- GENERATE TOKEN -->
+<section id="generate" class="page section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="card-box">
+                    <h2 class="fw-bold">Generate Your Token</h2>
+                    <p class="muted">
+                        Enter your details to join the queue.
+                    </p>
+
+                    <div id="generateMessage" role="status"></div>
+
+                    <form id="generateForm">
+                        <div class="mb-3">
+                            <label for="customerName" class="form-label">
+                                Full Name
+                            </label>
+
+                            <input id="customerName" name="name"
+                                   class="form-control"
+                                   maxlength="100"
+                                   autocomplete="name"
+                                   required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="customerPhone" class="form-label">
+                                Mobile Number
+                            </label>
+
+                            <input id="customerPhone" name="phone"
+                                   type="tel"
+                                   class="form-control"
+                                   inputmode="numeric"
+                                   pattern="[6-9][0-9]{9}"
+                                   maxlength="10"
+                                   autocomplete="tel-national"
+                                   required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="serviceId" class="form-label">
+                                Select Service
+                            </label>
+
+                            <select id="serviceId" name="service_id"
+                                    class="form-select" required>
+                                <option value="">Loading services...</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" id="generateButton"
+                                class="btn btn-primary w-100">
+                            Generate My Token
+                        </button>
+                    </form>
+
+                    <div id="tokenResult" class="mt-4" hidden>
+                        <hr>
+
+                        <div class="text-center">
+                            <p class="muted mb-1">YOUR TOKEN NUMBER</p>
+                            <div class="token-number" id="resultToken">--</div>
+                            <span class="status waiting" id="resultStatus">
+                                Waiting
+                            </span>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded">
+                                    <small class="muted">Queue Position</small>
+                                    <h5 id="resultPosition">--</h5>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <div class="p-3 bg-light rounded">
+                                    <small class="muted">Estimated Wait</small>
+                                    <h5 id="resultWait">--</h5>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="p-3 bg-light rounded">
+                                    <small class="muted">Queue Date</small>
+                                    <h6 id="resultDate">--</h6>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-outline-primary w-100 mt-3"
+                                onclick="showPage('track')">
+                            Track Token Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- LIVE QUEUE -->
+<section id="queue" class="page section">
+    <div class="container">
+        <h2 class="fw-bold">Live Queue</h2>
+        <p class="muted">Queue data retrieved from the backend.</p>
+
+        <div id="queueMessage" role="status"></div>
+
+        <div class="row g-3 my-3">
+            <div class="col-md-4">
+                <div class="card-box">
+                    <p class="muted">Currently Serving</p>
+                    <div class="stat-number" id="queueCurrent">--</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-box">
+                    <p class="muted">Waiting Customers</p>
+                    <div class="stat-number" id="queueWaiting">--</div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-box">
+                    <p class="muted">Queue Date</p>
+                    <div class="stat-number fs-5" id="queueDate">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-box mt-4">
+            <h4 class="fw-bold mb-4">Customers in Queue</h4>
+            <div id="queueList">
+                Queue information has not been loaded.
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- TRACK TOKEN -->
+<section id="track" class="page section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="card-box">
+                    <h2 class="fw-bold">Track Your Token</h2>
+                    <p class="muted">
+                        Enter your token number to check its status.
+                    </p>
+
+                    <form id="trackForm">
+                        <label for="trackNumber" class="form-label">
+                            Token Number
+                        </label>
+
+                        <div class="input-group">
+                            <input id="trackNumber" class="form-control"
+                                   placeholder="For example: BANK-20261017-0001"
+                                   required>
+
+                            <button class="btn btn-primary" type="submit">
+                                Track
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="trackMessage" class="mt-4" role="status"></div>
+                    <div id="trackResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ADMIN DASHBOARD -->
+<section id="admin" class="page section">
+    <div class="container">
+        <h2 class="fw-bold">Admin Dashboard</h2>
+        <p class="muted">Queue management and customer token records.</p>
+
+        <div id="adminMessage" role="status"></div>
+
+        <div class="row g-3 my-3">
+            <div class="col-6 col-lg-3">
+                <div class="card-box">
+                    <p class="muted">Total Tokens</p>
+                    <div class="stat-number" id="adminTotal">--</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card-box">
+                    <p class="muted">Waiting</p>
+                    <div class="stat-number" id="adminWaiting">--</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card-box">
+                    <p class="muted">Serving</p>
+                    <div class="stat-number" id="adminServing">--</div>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <div class="card-box">
+                    <p class="muted">Completed</p>
+                    <div class="stat-number" id="adminCompleted">--</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-box mt-4">
+            <div class="row g-3 mb-4">
+                <div class="col-md-7">
+                    <input id="adminSearch" class="form-control"
+                           placeholder="Search token or customer">
+                </div>
+
+                <div class="col-md-5">
+                    <select id="adminStatusFilter" class="form-select">
+                        <option value="">All statuses</option>
+                        <option value="Waiting">Waiting</option>
+                        <option value="Serving">Serving</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Customer</th>
+                            <th>Service</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="adminTable">
+                        <tr>
+                            <td colspan="5">Admin data not loaded.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="muted small">
+                This page requires a protected administrator API.
+            </p>
+        </div>
+    </div>
+</section>
+</main>
+
+
+<footer>
+    <div class="container">
+        <h4 class="fw-bold">SmartQueue</h4>
+        <p>Your Turn, Without the Wait.</p>
+        <p class="small mt-3">© <span id="year"></span> SmartQueue</p>
+    </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+"use strict";
+
+/*
+ * PHP API endpoints expected by this frontend:
+ *
+ * GET  api/services.php
+ * POST api/generate-token.php
+ * GET  api/queue.php
+ * GET  api/token-status.php?token_number=...
+ * GET  api/admin/tokens.php
+ *
+ * Each endpoint should return JSON.
+ *
+ * These endpoints must be implemented before the frontend can
+ * retrieve or save real database records.
+ */
+
+const API = {
+    services: "api/services.php",
+    generate: "api/generate-token.php",
+    queue: "api/queue.php",
+    status: "api/token-status.php",
+    adminTokens: "api/admin/tokens.php"
+};
+
+let latestTokens = [];
+let isGenerating = false;
+let lastGeneratedToken = null;
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+
+/* ---------- SAFE API REQUESTS ---------- */
+
+async function apiRequest(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            "Accept": "application/json",
+            ...(options.body ? {
+                "Content-Type": "application/json"
+            } : {}),
+            ...(options.headers || {})
+        },
+        credentials: "same-origin"
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message || "The server could not process your request."
+        );
+    }
+
+    if (!data || typeof data !== "object") {
+        throw new Error("The server returned an invalid response.");
+    }
+
+    return data;
+}
+
+
+function showMessage(elementId, message, type = "danger") {
+    const element = document.getElementById(elementId);
+
+    element.textContent = "";
+
+    const alert = document.createElement("div");
+    alert.className = "alert alert-" + type;
+    alert.textContent = message;
+
+    element.appendChild(alert);
+}
+
+
+function clearMessage(elementId) {
+    document.getElementById(elementId).replaceChildren();
+}
+
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+
+function statusClass(status) {
+    return {
+        Waiting: "waiting",
+        Serving: "serving",
+        Completed: "completed"
+    }[status] || "waiting";
+}
+
+
+function showPage(id) {
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+    });
+
+    const page = document.getElementById(id);
+
+    if (!page) {
+        return;
+    }
+
+    page.classList.add("active");
+
+    const menu = document.getElementById("navigation");
+
+    if (menu.classList.contains("show")) {
+        bootstrap.Collapse.getOrCreateInstance(menu).hide();
+    }
+
+    history.replaceState(null, "", "#" + id);
+
+    if (id === "generate") loadServices();
+    if (id === "queue") loadQueue();
+    if (id === "admin") loadAdminTokens();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+
+/* ---------- SERVICES ---------- */
+
+async function loadServices() {
+    const select = document.getElementById("serviceId");
+
+    try {
+        const data = await apiRequest(API.services);
+        const services = Array.isArray(data.services) ? data.services : [];
+
+        select.replaceChildren();
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Choose a service";
+        select.appendChild(placeholder);
+
+        services.forEach(service => {
+            const option = document.createElement("option");
+
+            option.value = String(service.id);
+            option.textContent = service.service_name;
+
+            select.appendChild(option);
+        });
+
+        if (services.length === 0) {
+            showMessage(
+                "generateMessage",
+                "No active services are available. Please try again later.",
+                "warning"
+            );
+        } else {
+            clearMessage("generateMessage");
+        }
+
+    } catch (error) {
+        select.replaceChildren();
+
+        const option = document.createElement("option");
+        option.value = "";
+        option.textContent = "Services unavailable";
+
+        select.appendChild(option);
+
+        showMessage(
+            "generateMessage",
+            "Could not load services. Check that the PHP backend is running.",
+            "danger"
+        );
+    }
+}
+
+
+/* ---------- GENERATE TOKEN ---------- */
+
+document.getElementById("generateForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    if (isGenerating) return;
+
+    const name = document.getElementById("customerName").value.trim();
+    const phone = document.getElementById("customerPhone").value.trim();
+    const serviceId = document.getElementById("serviceId").value;
+    const button = document.getElementById("generateButton");
+
+    if (name.length < 2 || name.length > 100) {
+        showMessage("generateMessage", "Enter a valid name.");
+        return;
+    }
+
+    if (!/^[6-9][0-9]{9}$/.test(phone)) {
+        showMessage(
+            "generateMessage",
+            "Enter a valid 10-digit Indian mobile number."
+        );
+        return;
+    }
+
+    if (!/^[1-9][0-9]*$/.test(serviceId)) {
+        showMessage("generateMessage", "Please select a valid service.");
+        return;
+    }
+
+    isGenerating = true;
+    button.disabled = true;
+    button.textContent = "Generating...";
+
+    clearMessage("generateMessage");
+    document.getElementById("tokenResult").hidden = true;
+
+    try {
+        /*
+         * The PHP backend must validate all fields again.
+         * Client-side validation is not a security boundary.
+         *
+         * For reliable retry protection, the backend should support
+         * an idempotency key and enforce it in the database.
+         */
+        const idempotencyKey = crypto.randomUUID();
+
+        const data = await apiRequest(API.generate, {
+            method: "POST",
+            headers: {
+                "Idempotency-Key": idempotencyKey
+            },
+            body: JSON.stringify({
+                name: name,
+                phone: phone,
+                service_id: Number(serviceId)
+            })
+        });
+
+        if (!data.token || !data.token.token_number) {
+            throw new Error("The server did not return a valid token.");
+        }
+
+        lastGeneratedToken = data.token.token_number;
+
+        document.getElementById("resultToken").textContent =
+            data.token.token_number;
+
+        document.getElementById("resultPosition").textContent =
+            data.token.queue_position ?? "--";
+
+        document.getElementById("resultWait").textContent =
+            data.token.estimated_wait_minutes == null
+                ? "--"
+                : data.token.estimated_wait_minutes + " min";
+
+        document.getElementById("resultDate").textContent =
+            data.token.queue_date ?? "--";
+
+        const status = data.token.status || "Waiting";
+
+        const statusElement = document.getElementById("resultStatus");
+        statusElement.textContent = status;
+        statusElement.className = "status " + statusClass(status);
+
+        document.getElementById("tokenResult").hidden = false;
+
+        showMessage(
+            "generateMessage",
+            "Your token has been generated successfully.",
+            "success"
+        );
+
+        document.getElementById("trackNumber").value =
+            data.token.token_number;
+
+        await loadQueue();
+
+    } catch (error) {
+        /*
+         * Do not automatically retry a token-generation POST:
+         * the server may have committed the token before a connection
+         * failure. A real backend should support idempotent retries.
+         */
+        showMessage(
+            "generateMessage",
+            error.message || "Unable to generate a token.",
+            "danger"
+        );
+    } finally {
+        isGenerating = false;
+        button.disabled = false;
+        button.textContent = "Generate My Token";
+    }
+});
+
+
+/* ---------- LIVE QUEUE ---------- */
+
+async function loadQueue() {
+    try {
+        const data = await apiRequest(API.queue);
+
+        const current = data.currently_serving;
+        const waiting = Number(data.waiting_count ?? 0);
+        const queue = Array.isArray(data.queue) ? data.queue : [];
+
+        document.getElementById("homeCurrent").textContent =
+            current?.token_number || "--";
+
+        document.getElementById("homeWaiting").textContent = waiting;
+
+        document.getElementById("queueCurrent").textContent =
+            current?.token_number || "None";
+
+        document.getElementById("queueWaiting").textContent = waiting;
+
+        document.getElementById("queueDate").textContent =
+            data.queue_date || "--";
+
+        const list = document.getElementById("queueList");
+        list.replaceChildren();
+
+        if (queue.length === 0) {
+            list.textContent = "No customers are currently in the queue.";
+        } else {
+            queue.forEach(token => {
+                const item = document.createElement("div");
+                item.className = "queue-item";
+
+                const title = document.createElement("strong");
+                title.textContent = token.token_number;
+
+                const details = document.createElement("p");
+                details.className = "muted mb-2";
+                details.textContent =
+                    (token.service_name || "Service") +
+                    " · Position " + (token.queue_position ?? "--");
+
+                const status = document.createElement("span");
+                status.className = "status " + statusClass(token.status);
+                status.textContent = token.status;
+
+                const wait = document.createElement("span");
+                wait.className = "muted ms-2 small";
+                wait.textContent =
+                    token.estimated_wait_minutes == null
+                        ? ""
+                        : token.estimated_wait_minutes + " min estimated";
+
+                item.append(title, details, status, wait);
+                list.appendChild(item);
+            });
+        }
+
+        clearMessage("queueMessage");
+
+    } catch (error) {
+        showMessage(
+            "queueMessage",
+            "Live queue is unavailable. Check the PHP API and database.",
+            "danger"
+        );
+    }
+}
+
+
+/* ---------- TOKEN STATUS ---------- */
+
+document.getElementById("trackForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const tokenNumber = document.getElementById("trackNumber")
+        .value.trim();
+
+    const result = document.getElementById("trackResult");
+
+    result.replaceChildren();
+    clearMessage("trackMessage");
+
+    if (!tokenNumber || tokenNumber.length > 100) {
+        showMessage("trackMessage", "Enter a valid token number.");
+        return;
+    }
+
+    try {
+        const data = await apiRequest(
+            API.status + "?token_number=" + encodeURIComponent(tokenNumber)
+        );
+
+        const token = data.token;
+
+        if (!token) {
+            throw new Error("The server returned no token information.");
+        }
+
+        const box = document.createElement("div");
+        box.className = "card-box";
+
+        const title = document.createElement("h3");
+        title.className = "token-number";
+        title.textContent = token.token_number;
+
+        const status = document.createElement("span");
+        status.className = "status " + statusClass(token.status);
+        status.textContent = token.status;
+
+        const position = document.createElement("p");
+        position.className = "mt-3";
+        position.textContent =
+            "Queue position: " + (token.queue_position ?? "--");
+
+        const wait = document.createElement("p");
+        wait.textContent =
+            "Estimated waiting time: " +
+            (token.estimated_wait_minutes == null
+                ? "--"
+                : token.estimated_wait_minutes + " minutes");
+
+        const service = document.createElement("p");
+        service.textContent =
+            "Service: " + (token.service_name || "Not available");
+
+        box.append(title, status, position, wait, service);
+        result.appendChild(box);
+
+    } catch (error) {
+        showMessage(
+            "trackMessage",
+            error.message || "Could not retrieve token status."
+        );
+    }
+});
+
+
+/* ---------- ADMIN TOKEN LIST ---------- */
+
+/*
+ * This API must enforce administrator authentication on the server.
+ * Hiding this page or its navigation link is not authentication.
+ */
+
+async function loadAdminTokens() {
+    try {
+        const data = await apiRequest(API.adminTokens);
+
+        latestTokens = Array.isArray(data.tokens) ? data.tokens : [];
+
+        renderAdminTable();
+
+        document.getElementById("adminTotal").textContent =
+            data.summary?.total ?? latestTokens.length;
+
+        document.getElementById("adminWaiting").textContent =
+            data.summary?.waiting ?? "--";
+
+        document.getElementById("adminServing").textContent =
+            data.summary?.serving ?? "--";
+
+        document.getElementById("adminCompleted").textContent =
+            data.summary?.completed ?? "--";
+
+        clearMessage("adminMessage");
+
+    } catch (error) {
+        latestTokens = [];
+        renderAdminTable();
+
+        showMessage(
+            "adminMessage",
+            "Admin data unavailable. Sign in through a protected admin system and verify the PHP API.",
+            "danger"
+        );
+    }
+}
+
+
+function renderAdminTable() {
+    const search = document.getElementById("adminSearch")
+        .value.trim().toLowerCase();
+
+    const statusFilter = document.getElementById("adminStatusFilter").value;
+
+    const filtered = latestTokens.filter(token => {
+        const matchesSearch =
+            String(token.token_number || "").toLowerCase().includes(search) ||
+            String(token.customer_name || "").toLowerCase().includes(search) ||
+            String(token.service_name || "").toLowerCase().includes(search);
+
+        const matchesStatus =
+            !statusFilter || token.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    const tbody = document.getElementById("adminTable");
+    tbody.replaceChildren();
+
+    if (filtered.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 5;
+        cell.textContent = "No matching tokens found.";
+
+        row.appendChild(cell);
+        tbody.appendChild(row);
+        return;
+    }
+
+    filtered.forEach(token => {
+        const row = document.createElement("tr");
+
+        const values = [
+            token.token_number,
+            token.customer_name,
+            token.service_name,
+            token.created_at,
+            token.status
+        ];
+
+        values.forEach((value, index) => {
+            const cell = document.createElement("td");
+
+            if (index === 4) {
+                const badge = document.createElement("span");
+                badge.className = "status " + statusClass(value);
+                badge.textContent = value || "Unknown";
+                cell.appendChild(badge);
+            } else {
+                cell.textContent = value ?? "--";
+            }
+
+            row.appendChild(cell);
+        });
+
+        tbody.appendChild(row);
+    });
+}
+
+
+document.getElementById("adminSearch")
+    .addEventListener("input", renderAdminTable);
+
+document.getElementById("adminStatusFilter")
+    .addEventListener("change", renderAdminTable);
+
+
+/* ---------- AUTOMATIC QUEUE REFRESH ---------- */
+
+setInterval(() => {
+    const queuePage = document.getElementById("queue");
+
+    if (queuePage.classList.contains("active")) {
+        loadQueue();
+    }
+}, 5000);
+
+
+/* ---------- INITIAL LOAD ---------- */
+
+loadServices();
+
+const initialPage = location.hash.substring(1);
+
+if ([
+    "home",
+    "generate",
+    "queue",
+    "track",
+    "admin"
+].includes(initialPage)) {
+    showPage(initialPage);
+} else {
+    loadQueue();
+}
+</script>
+
+</body>
+</html>
+```

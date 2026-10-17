@@ -1,0 +1,1155 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SmartQueue - Queue management, token tracking and service reports.">
+<title>SmartQueue | Queue Management System</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary: #2457e6;
+    --dark: #172033;
+    --background: #f4f7fc;
+    --muted: #697586;
+    --border: #e4e9f2;
+    --success: #16875b;
+}
+
+body {
+    background: var(--background);
+    color: var(--dark);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.navbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+}
+
+.brand {
+    color: var(--primary);
+    font-size: 1.45rem;
+    font-weight: 800;
+}
+
+.hero {
+    background: linear-gradient(135deg, #173fbd, #477cff);
+    color: white;
+    padding: 52px 0;
+}
+
+.hero h1 {
+    font-weight: 800;
+}
+
+.card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 5px 22px rgba(30, 50, 90, .045);
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+}
+
+.form-control, .form-select {
+    min-height: 45px;
+    border-radius: 9px;
+}
+
+.btn {
+    border-radius: 9px;
+}
+
+.btn-primary {
+    background: var(--primary);
+}
+
+.metric {
+    font-size: 1.9rem;
+    font-weight: 800;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.section {
+    display: none;
+    padding: 30px 0 55px;
+}
+
+.section.active {
+    display: block;
+}
+
+.nav-link {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.nav-link.active {
+    color: var(--primary) !important;
+}
+
+.token-number {
+    color: var(--primary);
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.status-pill {
+    display: inline-block;
+    border-radius: 25px;
+    padding: 5px 12px;
+    background: #e8f7ef;
+    color: #137348;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.table th {
+    color: var(--muted);
+    font-size: .83rem;
+    white-space: nowrap;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+footer {
+    background: #fff;
+    border-top: 1px solid var(--border);
+    padding: 22px 0;
+}
+
+#messageArea {
+    position: sticky;
+    top: 0;
+    z-index: 1050;
+}
+
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+
+    #receipt, #receipt * {
+        visibility: visible !important;
+    }
+
+    #receipt {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        box-shadow: none !important;
+        border: 1px solid #ddd;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg sticky-top no-print">
+<div class="container">
+    <a class="navbar-brand brand" href="#" onclick="showPage('home')">
+        SmartQueue
+    </a>
+
+    <button class="navbar-toggler" type="button"
+        data-bs-toggle="collapse" data-bs-target="#navigation"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navigation">
+        <ul class="navbar-nav ms-auto gap-lg-2">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-page="home">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-page="lookup">Check Token</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-page="admin">Admin Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <button class="btn btn-primary px-3 mt-2 mt-lg-0"
+                    onclick="openLogin()">Staff Login</button>
+            </li>
+        </ul>
+    </div>
+</div>
+</nav>
+
+<div id="messageArea" class="container mt-2" aria-live="polite"></div>
+
+<!-- HOME -->
+<section id="home" class="section active">
+    <div class="hero">
+        <div class="container">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
+                    <span class="badge bg-light text-primary mb-3">
+                        SIMPLE · SMART · ORGANIZED
+                    </span>
+                    <h1 class="display-4">Your time matters.</h1>
+                    <p class="lead">
+                        Generate a queue token, track your position,
+                        and spend less time waiting.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <button class="btn btn-light btn-lg"
+                            onclick="showPage('lookup')">
+                            Check My Token
+                        </button>
+                        <button class="btn btn-outline-light btn-lg"
+                            onclick="showPage('live')">
+                            View Live Queue
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card p-4 text-dark">
+                        <h4 class="fw-bold">Queue Status</h4>
+                        <p class="muted">Current service overview</p>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="p-3 rounded bg-light">
+                                    <div class="muted small">Waiting</div>
+                                    <div class="metric" id="homeWaiting">—</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded bg-light">
+                                    <div class="muted small">Serving</div>
+                                    <div class="metric" id="homeServing">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="small muted mt-3 mb-0">
+                            Live figures appear when the PHP API is configured.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">How SmartQueue Works</h2>
+            <p class="muted">Three simple steps to manage your visit.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card p-4 h-100">
+                    <h3>01. Get a token</h3>
+                    <p class="muted mb-0">
+                        Register for a service and receive your unique token.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4 h-100">
+                    <h3>02. Track progress</h3>
+                    <p class="muted mb-0">
+                        Check your status and estimated waiting time.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-4 h-100">
+                    <h3>03. Get served</h3>
+                    <p class="muted mb-0">
+                        Follow the queue and arrive when your turn is near.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CUSTOMER TOKEN LOOKUP -->
+<section id="lookup" class="section">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="mb-4">
+                <h2 class="fw-bold">Check Your Token</h2>
+                <p class="muted">
+                    Enter your token number and the verification details
+                    requested by the service.
+                </p>
+            </div>
+
+            <div class="card p-4">
+                <form id="lookupForm">
+                    <div class="mb-3">
+                        <label for="lookupToken" class="form-label">
+                            Token Number
+                        </label>
+                        <input class="form-control" id="lookupToken"
+                            name="token" maxlength="30" required
+                            autocomplete="off" placeholder="Example: SQ-104">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="lookupVerification" class="form-label">
+                            Verification Code
+                        </label>
+                        <input class="form-control" id="lookupVerification"
+                            name="verification_code" maxlength="12" required
+                            autocomplete="one-time-code"
+                            placeholder="Enter your issued verification code">
+                        <div class="form-text">
+                            Use the verification code issued when your token
+                            was created. Do not enter someone else's details.
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100" type="submit">
+                        <span id="lookupButtonText">Check Status</span>
+                    </button>
+                </form>
+            </div>
+
+            <div id="lookupResult" class="mt-4" aria-live="polite"></div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- LIVE QUEUE -->
+<section id="live" class="section">
+<div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h2 class="fw-bold">Live Queue</h2>
+            <p class="muted mb-0">
+                Public queue information. Customer phone numbers are never displayed.
+            </p>
+        </div>
+        <button class="btn btn-outline-primary" onclick="loadPublicQueue()">
+            Refresh Queue
+        </button>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card p-4">
+                <div class="muted">Waiting</div>
+                <div class="metric" id="liveWaiting">—</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4">
+                <div class="muted">Currently Serving</div>
+                <div class="metric" id="liveServing">—</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-4">
+                <div class="muted">Completed Today</div>
+                <div class="metric" id="liveCompleted">—</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header p-3">Queue Tokens</div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Queue Position</th>
+                </tr>
+                </thead>
+                <tbody id="publicQueueTable">
+                <tr><td colspan="4" class="text-center p-4 muted">
+                    Connect the PHP API to display live queue information.
+                </td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<section id="admin" class="section">
+<div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold">Admin Dashboard</h2>
+            <p class="muted mb-0">Manage tokens, queue operations and reports.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="loadAdminDashboard()">
+                Refresh
+            </button>
+            <button class="btn btn-outline-danger" onclick="logout()">
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <div id="adminAuthNotice" class="alert alert-warning">
+        You must log in through the PHP backend before accessing protected
+        administrative data or performing queue actions.
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card p-3 h-100">
+                <div class="muted">Tokens Today</div>
+                <div class="metric" id="reportGenerated">—</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card p-3 h-100">
+                <div class="muted">Completed</div>
+                <div class="metric" id="reportCompleted">—</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card p-3 h-100">
+                <div class="muted">Cancelled</div>
+                <div class="metric" id="reportCancelled">—</div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card p-3 h-100">
+                <div class="muted">Average Service Time</div>
+                <div class="metric" id="reportAverage">—</div>
+                <small class="muted">Minutes</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- TOKEN MANAGEMENT -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header p-3 d-flex flex-wrap justify-content-between gap-2">
+                    <span>Token Management</span>
+                    <button class="btn btn-sm btn-primary"
+                        onclick="callNext()">Call Next</button>
+                </div>
+
+                <div class="p-3">
+                    <div class="row g-2">
+                        <div class="col-md-7">
+                            <label class="form-label" for="adminSearch">
+                                Search token
+                            </label>
+                            <input id="adminSearch" class="form-control"
+                                placeholder="Search token number"
+                                oninput="filterAdminTokens()">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label" for="adminStatusFilter">
+                                Status
+                            </label>
+                            <select id="adminStatusFilter" class="form-select"
+                                onchange="filterAdminTokens()">
+                                <option value="">All statuses</option>
+                                <option value="waiting">Waiting</option>
+                                <option value="serving">Serving</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="skipped">Skipped</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Service</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody id="adminTokenTable">
+                        <tr><td colspan="4" class="text-center p-4 muted">
+                            Log in to load protected token records.
+                        </td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- REPORTS -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header p-3">Reports</div>
+                <div class="card-body">
+                    <p class="muted small">
+                        Download authorized report data from the PHP backend.
+                    </p>
+
+                    <label for="reportDate" class="form-label">Report Date</label>
+                    <input type="date" id="reportDate" class="form-control mb-3">
+
+                    <button class="btn btn-primary w-100"
+                        onclick="exportReport()">
+                        Export CSV
+                    </button>
+
+                    <div class="mt-3">
+                        <h6>Peak-Hour Statistics</h6>
+                        <div id="peakHourReport" class="muted small">
+                            Report data will appear after backend configuration.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header p-3">Security Reminder</div>
+                <div class="card-body small muted">
+                    Administrative actions must be authorized by the server.
+                    The backend must validate each request, check CSRF tokens,
+                    enforce valid status transitions and write audit logs.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<!-- LOGIN MODAL -->
+<div class="modal fade" id="loginModal" tabindex="-1"
+    aria-labelledby="loginTitle" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title fw-bold" id="loginTitle">Staff Login</h5>
+            <button type="button" class="btn-close"
+                data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label for="loginUsername" class="form-label">
+                        Username
+                    </label>
+                    <input id="loginUsername" name="username"
+                        class="form-control" autocomplete="username"
+                        maxlength="100" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="loginPassword" class="form-label">
+                        Password
+                    </label>
+                    <input id="loginPassword" name="password"
+                        type="password" class="form-control"
+                        autocomplete="current-password"
+                        required>
+                </div>
+
+                <button class="btn btn-primary w-100" type="submit">
+                    <span id="loginButtonText">Log In</span>
+                </button>
+            </form>
+            <p class="small muted mt-3 mb-0">
+                This form requires a configured PHP authentication endpoint.
+                Never store passwords in browser JavaScript.
+            </p>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- PRINTABLE RECEIPT -->
+<div class="container py-4">
+    <div id="receipt" class="card p-4 mx-auto" style="max-width:450px;display:none">
+        <div class="text-center">
+            <h2 class="fw-bold">SmartQueue</h2>
+            <p class="muted">Customer Token Receipt</p>
+            <hr>
+            <div class="small muted">YOUR TOKEN NUMBER</div>
+            <div class="token-number" id="receiptToken">SQ-000</div>
+        </div>
+        <div class="mt-3">
+            <p><strong>Service:</strong> <span id="receiptService">—</span></p>
+            <p><strong>Status:</strong> <span id="receiptStatus">—</span></p>
+            <p><strong>Queue position:</strong> <span id="receiptPosition">—</span></p>
+            <p><strong>Estimated wait:</strong> <span id="receiptWait">—</span></p>
+            <p><strong>Issued:</strong> <span id="receiptIssued">—</span></p>
+        </div>
+        <p class="small muted text-center">
+            Keep your token number and verification code private.
+        </p>
+        <button class="btn btn-primary no-print"
+            onclick="window.print()">Print Receipt</button>
+    </div>
+</div>
+
+<footer class="no-print">
+<div class="container d-flex flex-wrap justify-content-between gap-2">
+    <span class="fw-bold">SmartQueue</span>
+    <span class="muted small">Queue management made simple.</span>
+</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+"use strict";
+
+/*
+ * FRONTEND CONFIGURATION
+ * Serve this page through XAMPP, for example:
+ * http://localhost/smartqueue/
+ *
+ * The PHP backend must implement the API routes listed in the README.
+ */
+const API_BASE = "api";
+
+let adminTokens = [];
+let isAuthenticated = false;
+
+function showMessage(message, type = "info") {
+    const area = document.getElementById("messageArea");
+    const alert = document.createElement("div");
+
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.setAttribute("role", "alert");
+    alert.textContent = message;
+
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "btn-close";
+    close.setAttribute("data-bs-dismiss", "alert");
+    close.setAttribute("aria-label", "Close");
+
+    alert.appendChild(close);
+    area.replaceChildren(alert);
+}
+
+function showPage(pageId) {
+    document.querySelectorAll(".section").forEach(section => {
+        section.classList.toggle("active", section.id === pageId);
+    });
+
+    document.querySelectorAll("[data-page]").forEach(link => {
+        link.classList.toggle("active", link.dataset.page === pageId);
+    });
+
+    if (pageId === "live") loadPublicQueue();
+    if (pageId === "admin") loadAdminDashboard();
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll("[data-page]").forEach(link => {
+    link.addEventListener("click", event => {
+        event.preventDefault();
+        showPage(link.dataset.page);
+    });
+});
+
+function openLogin() {
+    bootstrap.Modal.getOrCreateInstance(
+        document.getElementById("loginModal")
+    ).show();
+}
+
+/*
+ * Central API helper.
+ * CSRF protection is enforced by the server. The server should issue
+ * a CSRF token through a secure session endpoint and validate it for
+ * every state-changing request.
+ */
+let csrfToken = "";
+
+async function apiRequest(path, options = {}) {
+    const method = (options.method || "GET").toUpperCase();
+    const headers = new Headers(options.headers || {});
+
+    headers.set("Accept", "application/json");
+
+    if (options.body && !(options.body instanceof FormData)) {
+        headers.set("Content-Type", "application/json");
+    }
+
+    if (!["GET", "HEAD", "OPTIONS"].includes(method) && csrfToken) {
+        headers.set("X-CSRF-Token", csrfToken);
+    }
+
+    let response;
+
+    try {
+        response = await fetch(`${API_BASE}/${path}`, {
+            ...options,
+            method,
+            headers,
+            credentials: "same-origin"
+        });
+    } catch {
+        throw new Error(
+            "Unable to connect to the server. Check that XAMPP and the PHP API are running."
+        );
+    }
+
+    const contentType = response.headers.get("content-type") || "";
+    let data = {};
+
+    if (contentType.includes("application/json")) {
+        data = await response.json();
+    } else if (response.ok) {
+        throw new Error(
+            "The server returned an unexpected response. Check the PHP API configuration."
+        );
+    }
+
+    if (!response.ok) {
+        if (response.status === 401) isAuthenticated = false;
+
+        throw new Error(
+            data.message || `Request failed with status ${response.status}.`
+        );
+    }
+
+    return data;
+}
+
+function safeText(value) {
+    return String(value ?? "");
+}
+
+function addCell(row, value) {
+    const cell = document.createElement("td");
+    cell.textContent = safeText(value);
+    row.appendChild(cell);
+    return cell;
+}
+
+function addActionButton(container, label, action, tokenId, style = "outline-primary") {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `btn btn-sm btn-${style} me-1 mb-1`;
+    button.textContent = label;
+    button.addEventListener("click", () => performTokenAction(tokenId, action));
+    container.appendChild(button);
+}
+
+function renderAdminTokens(tokens) {
+    const tbody = document.getElementById("adminTokenTable");
+    tbody.replaceChildren();
+
+    if (!tokens.length) {
+        const row = tbody.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 4;
+        cell.className = "text-center p-4 muted";
+        cell.textContent = "No tokens match this filter.";
+        return;
+    }
+
+    tokens.forEach(token => {
+        const row = tbody.insertRow();
+
+        addCell(row, token.token_number);
+        addCell(row, token.service_name);
+
+        const statusCell = addCell(row, token.status);
+        statusCell.textContent = safeText(token.status);
+
+        const actions = row.insertCell();
+
+        if (token.status === "waiting") {
+            addActionButton(actions, "Serve", "serve", token.id);
+            addActionButton(actions, "Skip", "skip", token.id, "outline-warning");
+            addActionButton(actions, "Cancel", "cancel", token.id, "outline-danger");
+        } else if (token.status === "serving") {
+            addActionButton(actions, "Complete", "complete", token.id, "outline-success");
+            addActionButton(actions, "Recall", "recall", token.id);
+            addActionButton(actions, "Cancel", "cancel", token.id, "outline-danger");
+        } else if (token.status === "skipped") {
+            addActionButton(actions, "Recall", "recall", token.id);
+            addActionButton(actions, "Cancel", "cancel", token.id, "outline-danger");
+        }
+    });
+}
+
+function filterAdminTokens() {
+    const search = document.getElementById("adminSearch").value.toLowerCase().trim();
+    const status = document.getElementById("adminStatusFilter").value;
+
+    const filtered = adminTokens.filter(token => {
+        const matchesSearch = safeText(token.token_number).toLowerCase().includes(search);
+        const matchesStatus = !status || token.status === status;
+        return matchesSearch && matchesStatus;
+    });
+
+    renderAdminTokens(filtered);
+}
+
+async function loadAdminDashboard() {
+    try {
+        const me = await apiRequest("auth/me.php");
+
+        isAuthenticated = Boolean(me.authenticated);
+        csrfToken = me.csrf_token || "";
+
+        if (!isAuthenticated) {
+            document.getElementById("adminAuthNotice").classList.remove("d-none");
+            document.getElementById("adminAuthNotice").textContent =
+                "Please log in to access the protected admin dashboard.";
+            return;
+        }
+
+        document.getElementById("adminAuthNotice").classList.add("d-none");
+
+        const [dashboard, tokenData] = await Promise.all([
+            apiRequest("admin/dashboard.php"),
+            apiRequest("admin/tokens.php")
+        ]);
+
+        const stats = dashboard.stats || dashboard;
+
+        document.getElementById("reportGenerated").textContent =
+            safeText(stats.generated_today ?? "—");
+        document.getElementById("reportCompleted").textContent =
+            safeText(stats.completed_today ?? "—");
+        document.getElementById("reportCancelled").textContent =
+            safeText(stats.cancelled_today ?? "—");
+        document.getElementById("reportAverage").textContent =
+            safeText(stats.average_service_minutes ?? "—");
+
+        document.getElementById("peakHourReport").textContent =
+            stats.peak_hour
+                ? `${stats.peak_hour}: ${stats.peak_hour_tokens ?? 0} tokens`
+                : "No peak-hour data available.";
+
+        adminTokens = Array.isArray(tokenData.tokens)
+            ? tokenData.tokens
+            : [];
+
+        filterAdminTokens();
+    } catch (error) {
+        if (error.message.includes("401")) {
+            isAuthenticated = false;
+        }
+        showMessage(error.message, "warning");
+    }
+}
+
+async function performTokenAction(tokenId, action) {
+    if (!isAuthenticated) {
+        showMessage("Please log in before performing administrative actions.", "warning");
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to ${action} this token?`)) return;
+
+    try {
+        const result = await apiRequest(
+            `admin/tokens/${encodeURIComponent(tokenId)}/${action}.php`,
+            { method: "POST", body: JSON.stringify({}) }
+        );
+
+        showMessage(result.message || "Action completed successfully.", "success");
+        await loadAdminDashboard();
+        await loadPublicQueue();
+    } catch (error) {
+        showMessage(error.message, "danger");
+    }
+}
+
+async function callNext() {
+    if (!isAuthenticated) {
+        showMessage("Please log in before calling the next customer.", "warning");
+        return;
+    }
+
+    try {
+        const result = await apiRequest("admin/tokens/call.php", {
+            method: "POST",
+            body: JSON.stringify({})
+        });
+
+        showMessage(result.message || "Next token called.", "success");
+        await loadAdminDashboard();
+        await loadPublicQueue();
+    } catch (error) {
+        showMessage(error.message, "danger");
+    }
+}
+
+document.getElementById("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const button = document.getElementById("loginButtonText");
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    button.textContent = "Signing in...";
+
+    try {
+        const result = await apiRequest("auth/login.php", {
+            method: "POST",
+            body: JSON.stringify({ username, password })
+        });
+
+        csrfToken = result.csrf_token || "";
+
+        document.getElementById("loginPassword").value = "";
+        bootstrap.Modal.getOrCreateInstance(
+            document.getElementById("loginModal")
+        ).hide();
+
+        showMessage("Login successful.", "success");
+        showPage("admin");
+        await loadAdminDashboard();
+    } catch (error) {
+        showMessage(error.message, "danger");
+    } finally {
+        button.textContent = "Log In";
+    }
+});
+
+async function logout() {
+    try {
+        await apiRequest("auth/logout.php", {
+            method: "POST",
+            body: JSON.stringify({})
+        });
+
+        isAuthenticated = false;
+        csrfToken = "";
+        adminTokens = [];
+
+        showMessage("You have been logged out.", "success");
+        showPage("home");
+    } catch (error) {
+        showMessage(error.message, "danger");
+    }
+}
+
+/* CUSTOMER LOOKUP */
+document.getElementById("lookupForm").addEventListener("submit", async event => {
+    event.preventDefault();
+
+    const button = document.getElementById("lookupButtonText");
+    const token = document.getElementById("lookupToken").value.trim();
+    const verificationCode =
+        document.getElementById("lookupVerification").value.trim();
+
+    if (!token || !verificationCode) {
+        showMessage("Enter both the token number and verification code.", "warning");
+        return;
+    }
+
+    button.textContent = "Checking...";
+    button.closest("button").disabled = true;
+
+    try {
+        const result = await apiRequest("customer/token-lookup.php", {
+            method: "POST",
+            body: JSON.stringify({
+                token_number: token,
+                verification_code: verificationCode
+            })
+        });
+
+        const data = result.token || result;
+        renderLookupResult(data);
+    } catch (error) {
+        document.getElementById("lookupResult").replaceChildren();
+        showMessage(error.message, "danger");
+    } finally {
+        button.textContent = "Check Status";
+        button.closest("button").disabled = false;
+    }
+});
+
+function renderLookupResult(data) {
+    const container = document.getElementById("lookupResult");
+    container.replaceChildren();
+
+    const card = document.createElement("div");
+    card.className = "card p-4";
+
+    const heading = document.createElement("h3");
+    heading.className = "fw-bold";
+    heading.textContent = "Your Token Status";
+
+    const token = document.createElement("div");
+    token.className = "token-number";
+    token.textContent = safeText(data.token_number);
+
+    const status = document.createElement("p");
+    status.className = "mt-2";
+    status.textContent = `Status: ${safeText(data.status)}`;
+
+    const position = document.createElement("p");
+    position.textContent = `Queue position: ${safeText(data.queue_position ?? "Not available")}`;
+
+    const wait = document.createElement("p");
+    wait.textContent = `Estimated wait: ${safeText(data.estimated_wait_minutes ?? "Not available")} minutes`;
+
+    const service = document.createElement("p");
+    service.textContent = `Service: ${safeText(data.service_name ?? "—")}`;
+
+    card.append(heading, token, status, position, wait, service);
+
+    const receiptButton = document.createElement("button");
+    receiptButton.type = "button";
+    receiptButton.className = "btn btn-primary mt-2";
+    receiptButton.textContent = "Prepare Printable Receipt";
+    receiptButton.addEventListener("click", () => printReceipt(data));
+
+    card.appendChild(receiptButton);
+    container.appendChild(card);
+
+    showMessage("Token details loaded.", "success");
+}
+
+function printReceipt(data) {
+    document.getElementById("receiptToken").textContent = safeText(data.token_number);
+    document.getElementById("receiptService").textContent = safeText(data.service_name);
+    document.getElementById("receiptStatus").textContent = safeText(data.status);
+    document.getElementById("receiptPosition").textContent =
+        safeText(data.queue_position ?? "Not available");
+    document.getElementById("receiptWait").textContent =
+        `${safeText(data.estimated_wait_minutes ?? "Not available")} minutes`;
+    document.getElementById("receiptIssued").textContent =
+        safeText(data.created_at ?? "Not available");
+
+    document.getElementById("receipt").style.display = "block";
+    window.print();
+    document.getElementById("receipt").style.display = "none";
+}
+
+/* PUBLIC QUEUE: the API response must never include phone numbers. */
+async function loadPublicQueue() {
+    try {
+        const result = await apiRequest("queue.php");
+        const stats = result.stats || {};
+
+        document.getElementById("homeWaiting").textContent =
+            safeText(stats.waiting ?? "—");
+        document.getElementById("homeServing").textContent =
+            safeText(stats.serving ?? "—");
+
+        document.getElementById("liveWaiting").textContent =
+            safeText(stats.waiting ?? "—");
+        document.getElementById("liveServing").textContent =
+            safeText(stats.serving ?? "—");
+        document.getElementById("liveCompleted").textContent =
+            safeText(stats.completed_today ?? "—");
+
+        const tbody = document.getElementById("publicQueueTable");
+        tbody.replaceChildren();
+
+        const tokens = Array.isArray(result.tokens) ? result.tokens : [];
+
+        if (!tokens.length) {
+            const row = tbody.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 4;
+            cell.className = "text-center p-4 muted";
+            cell.textContent = "No public queue tokens available.";
+            return;
+        }
+
+        tokens.forEach(token => {
+            const row = tbody.insertRow();
+            addCell(row, token.token_number);
+            addCell(row, token.service_name);
+            addCell(row, token.status);
+            addCell(row, token.queue_position ?? "—");
+        });
+    } catch (error) {
+        console.warn("Public queue unavailable:", error.message);
+    }
+}
+
+/* REPORT EXPORT: server must authorize access and generate the CSV. */
+async function exportReport() {
+    if (!isAuthenticated) {
+        showMessage("Log in with report-export permission first.", "warning");
+        return;
+    }
+
+    const date = document.getElementById("reportDate").value;
+
+    if (!date) {
+        showMessage("Choose a date for the report.", "warning");
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `${API_BASE}/admin/reports/export.php?date=${encodeURIComponent(date)}`,
+            {
+                method: "GET",
+                credentials: "same-origin",
+                headers: {
+                    "Accept": "text/csv",
+                    ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {})
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Report export failed. Check your permissions and server configuration.");
+        }
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = url;
+        link.download = `smartqueue-report-${date}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+
+        showMessage("Report downloaded.", "success");
+    } catch (error) {
+        showMessage(error.message, "danger");
+    }
+}
+
+/* Initial state and periodic public queue refresh. */
+document.getElementById("reportDate").value =
+    new Date().toISOString().slice(0, 10);
+
+loadPublicQueue();
+setInterval(loadPublicQueue, 10000);
+</script>
+
+</body>
+</html>
+```

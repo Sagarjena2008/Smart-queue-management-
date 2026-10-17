@@ -1,0 +1,1761 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SmartQueue | Your Turn, Without the Wait</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary: #eef2ff;
+            --dark: #172033;
+            --muted: #64748b;
+            --background: #f7f8fc;
+            --success: #16a34a;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--dark);
+            margin: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 85px;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .navbar-brand {
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--primary) !important;
+        }
+
+        .brand-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            margin-right: 7px;
+            border-radius: 11px;
+            background: var(--primary);
+            color: white;
+            font-size: 21px;
+        }
+
+        .nav-link {
+            color: #475569;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            border-radius: 9px;
+            padding: 11px 20px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline-primary {
+            border-radius: 9px;
+            padding: 11px 20px;
+            font-weight: 600;
+        }
+
+        .hero {
+            padding: 100px 0 85px;
+            background: linear-gradient(135deg, #eef2ff, #ffffff 60%, #e0e7ff);
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 5vw, 58px);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -2px;
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+        }
+
+        .hero p {
+            max-width: 570px;
+            color: var(--muted);
+            font-size: 17px;
+            line-height: 1.8;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 9px 14px;
+            border-radius: 50px;
+            background: white;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .hero-card {
+            padding: 30px;
+            background: white;
+            border-radius: 22px;
+            box-shadow: 0 20px 70px rgba(79, 70, 229, 0.12);
+            border: 1px solid #e9eaff;
+        }
+
+        .hero-card .number {
+            font-size: 46px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .queue-preview {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+            margin-top: 12px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .queue-dot {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: var(--success);
+        }
+
+        .section {
+            padding: 75px 0;
+        }
+
+        .section-title {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            max-width: 650px;
+            margin: 12px auto 40px;
+            line-height: 1.7;
+        }
+
+        .feature-card {
+            height: 100%;
+            padding: 27px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.07);
+        }
+
+        .feature-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 55px;
+            height: 55px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            background: var(--secondary);
+            font-size: 26px;
+        }
+
+        .feature-card h5 {
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.025);
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 47px;
+            border-color: #dce1ea;
+            border-radius: 9px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        .token-result {
+            display: none;
+            padding: 25px;
+            margin-top: 25px;
+            border: 1px solid #c7d2fe;
+            border-radius: 16px;
+            background: #eef2ff;
+        }
+
+        .token-number {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 2px;
+        }
+
+        .info-box {
+            padding: 16px;
+            height: 100%;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .info-box small {
+            color: var(--muted);
+            display: block;
+            margin-bottom: 7px;
+        }
+
+        .info-box strong {
+            font-size: 18px;
+        }
+
+        .stat-card {
+            padding: 22px;
+            height: 100%;
+            border-radius: 15px;
+            background: white;
+            border: 1px solid var(--border);
+        }
+
+        .stat-card .stat-number {
+            font-size: 30px;
+            font-weight: 800;
+            margin-top: 12px;
+        }
+
+        .stat-card .stat-label {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stat-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--secondary);
+            font-size: 22px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-waiting {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-serving {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .table th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 17px 12px;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .queue-token {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: white;
+        }
+
+        .queue-token.current {
+            border: 2px solid var(--primary);
+            background: #f5f5ff;
+        }
+
+        .token-label {
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .instructions {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+
+        footer {
+            padding: 35px 0;
+            background: #172033;
+            color: white;
+        }
+
+        footer p {
+            color: #cbd5e1;
+            margin-bottom: 0;
+        }
+
+        .hidden-section {
+            display: none;
+        }
+
+        .demo-note {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #9a3412;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: 65px 0;
+            }
+
+            .hero h1 {
+                letter-spacing: -1px;
+            }
+
+            .section {
+                padding: 55px 0;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+
+            .hero-card {
+                margin-top: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="#home" onclick="showSection('home')">
+            <span class="brand-icon">Q</span>SmartQueue
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarMenu"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMenu">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="#home"
+                       onclick="showSection('home')">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#services"
+                       onclick="showSection('home')">Services</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#live-queue"
+                       onclick="showSection('live-queue')">Live Queue</a>
+                </li>
+
+                <li class="nav-item ms-lg-2">
+                    <button class="btn btn-primary"
+                            onclick="showSection('generate-token')">
+                        Generate Token
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<!-- HOME PAGE -->
+<main>
+<section id="home" class="page-section">
+    <div class="hero">
+        <div class="container">
+            <div class="row align-items-center g-5">
+
+                <div class="col-lg-7">
+                    <span class="hero-badge">
+                        ✨ SMARTER QUEUES, BETTER EXPERIENCES
+                    </span>
+
+                    <h1>
+                        Welcome to SmartQueue —
+                        <span>Your Turn, Without the Wait.</span>
+                    </h1>
+
+                    <p class="mt-4">
+                        Skip long queues and save your valuable time.
+                        Generate your digital token online, monitor your
+                        position, and know when it's your turn.
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-3 mt-4">
+                        <button class="btn btn-primary btn-lg"
+                                onclick="showSection('generate-token')">
+                            Generate Token →
+                        </button>
+
+                        <button class="btn btn-outline-primary btn-lg"
+                                onclick="showSection('live-queue')">
+                            View Live Queue
+                        </button>
+                    </div>
+
+                    <div class="mt-4 muted small">
+                        ✓ Easy registration &nbsp;
+                        ✓ Queue tracking &nbsp;
+                        ✓ Time-saving experience
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="hero-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-bold mb-1">Queue Overview</h5>
+                                <small class="muted">Today's queue</small>
+                            </div>
+                            <span class="status status-serving">● Live demo</span>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="text-center">
+                            <div class="muted small">NOW SERVING</div>
+                            <div class="number" id="heroCurrentToken">--</div>
+                            <div class="muted small">Current token</div>
+                        </div>
+
+                        <div class="queue-preview">
+                            <div>
+                                <span class="queue-dot"></span>
+                                <strong>Customers waiting</strong>
+                            </div>
+                            <strong id="heroWaiting">0</strong>
+                        </div>
+
+                        <div class="queue-preview">
+                            <div>
+                                <span class="queue-dot"
+                                      style="background:#4f46e5"></span>
+                                <strong>Estimated wait</strong>
+                            </div>
+                            <strong id="heroWait">0 min</strong>
+                        </div>
+
+                        <button class="btn btn-outline-primary w-100 mt-4"
+                                onclick="showSection('live-queue')">
+                            Check Queue Status
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="section">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">How SmartQueue Works</h2>
+                <p class="section-subtitle">
+                    Get your place in line in three simple steps.
+                    No unnecessary waiting and no complicated registration.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">📝</div>
+                        <h5>1. Generate Your Token</h5>
+                        <p>
+                            Enter your name, phone number, and preferred
+                            service to receive a unique digital token.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h5>2. Track Your Position</h5>
+                        <p>
+                            Check the current serving token, customers
+                            ahead of you, and estimated waiting time.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔔</div>
+                        <h5>3. Be Ready for Your Turn</h5>
+                        <p>
+                            Monitor your status and return when your
+                            token is approaching the service counter.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="section pt-0" id="services">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Our Services</h2>
+                <p class="section-subtitle">
+                    Select the service you need when generating your token.
+                </p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏦</div>
+                        <h5>Banking Services</h5>
+                        <p>
+                            Account enquiries, document verification,
+                            and general banking assistance.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏥</div>
+                        <h5>Healthcare</h5>
+                        <p>
+                            Registration desks, appointment check-ins,
+                            and general hospital services.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏢</div>
+                        <h5>Public Services</h5>
+                        <p>
+                            Customer support, document submission,
+                            and other administrative services.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INSTRUCTIONS -->
+    <div class="section pt-0">
+        <div class="container">
+            <div class="panel">
+                <h3 class="fw-bold mb-4">Before You Join the Queue</h3>
+
+                <div class="instructions">
+                    <strong>01. Enter correct details</strong>
+                    <p class="muted mb-0 mt-2">
+                        Provide your name and a valid 10-digit Indian
+                        mobile number.
+                    </p>
+                </div>
+
+                <div class="instructions">
+                    <strong>02. Save your token number</strong>
+                    <p class="muted mb-0 mt-2">
+                        Keep your token number available so you can
+                        identify your position.
+                    </p>
+                </div>
+
+                <div class="instructions">
+                    <strong>03. Monitor your status</strong>
+                    <p class="muted mb-0 mt-2">
+                        Check the live queue before approaching the
+                        service counter.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- TOKEN GENERATION PAGE -->
+<section id="generate-token" class="page-section hidden-section">
+    <div class="section">
+        <div class="container">
+            <div class="mb-4">
+                <button class="btn btn-outline-primary btn-sm"
+                        onclick="showSection('home')">
+                    ← Back to Home
+                </button>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+
+                    <div class="mb-4">
+                        <h2 class="section-title">Generate Your Token</h2>
+                        <p class="muted">
+                            Fill in your details to join the digital queue.
+                        </p>
+                    </div>
+
+                    <div class="demo-note mb-4">
+                        <strong>Frontend demo:</strong>
+                        Tokens are stored in this browser only.
+                        This is not a shared or permanent queue.
+                    </div>
+
+                    <div class="panel">
+                        <form id="tokenForm">
+                            <div class="mb-4">
+                                <label for="customerName" class="form-label">
+                                    Full Name *
+                                </label>
+
+                                <input type="text" id="customerName"
+                                       class="form-control"
+                                       placeholder="Enter your full name"
+                                       maxlength="80"
+                                       autocomplete="name"
+                                       required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="phone" class="form-label">
+                                    Mobile Number *
+                                </label>
+
+                                <input type="tel" id="phone"
+                                       class="form-control"
+                                       placeholder="Enter 10-digit mobile number"
+                                       inputmode="numeric"
+                                       pattern="[6-9][0-9]{9}"
+                                       maxlength="10"
+                                       autocomplete="tel-national"
+                                       required>
+
+                                <small class="muted">
+                                    Enter a 10-digit Indian mobile number.
+                                </small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="service" class="form-label">
+                                    Select Service *
+                                </label>
+
+                                <select id="service" class="form-select" required>
+                                    <option value="">Choose a service</option>
+                                    <option value="Banking Services">
+                                        Banking Services
+                                    </option>
+                                    <option value="Healthcare">
+                                        Healthcare
+                                    </option>
+                                    <option value="Public Services">
+                                        Public Services
+                                    </option>
+                                    <option value="Customer Support">
+                                        Customer Support
+                                    </option>
+                                    <option value="General Enquiry">
+                                        General Enquiry
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button type="submit" id="generateButton"
+                                    class="btn btn-primary w-100">
+                                Generate My Token
+                            </button>
+                        </form>
+
+                        <div id="tokenResult" class="token-result"
+                             aria-live="polite">
+                            <div class="text-center mb-4">
+                                <div class="muted small fw-bold">
+                                    YOUR DIGITAL TOKEN
+                                </div>
+
+                                <div id="resultToken" class="token-number">
+                                    SQ-0001
+                                </div>
+
+                                <span class="status status-waiting">
+                                    Waiting in queue
+                                </span>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <div class="info-box">
+                                        <small>Queue Position</small>
+                                        <strong id="resultPosition">1</strong>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="info-box">
+                                        <small>Estimated Waiting Time</small>
+                                        <strong id="resultWait">0 min</strong>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="info-box">
+                                        <small>Date</small>
+                                        <strong id="resultDate">--</strong>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="info-box">
+                                        <small>Time</small>
+                                        <strong id="resultTime">--</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 d-grid gap-2">
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        onclick="showSection('live-queue')">
+                                    Track My Token
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-outline-primary"
+                                        onclick="window.print()">
+                                    Print Token
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- LIVE QUEUE PAGE -->
+<section id="live-queue" class="page-section hidden-section">
+    <div class="section">
+        <div class="container">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                <div>
+                    <h2 class="section-title">Live Queue</h2>
+                    <p class="muted mb-0">
+                        Monitor the current queue and your waiting status.
+                    </p>
+                </div>
+
+                <span class="status status-serving">
+                    ● Browser Demo
+                </span>
+            </div>
+
+            <div class="demo-note mb-4">
+                Queue information refreshes automatically in this browser.
+                Cross-device real-time updates require a PHP/MySQL backend.
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">📣</div>
+                        <div class="stat-number" id="liveCurrent">--</div>
+                        <div class="stat-label">Currently Serving</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-number" id="liveWaiting">0</div>
+                        <div class="stat-label">Customers Waiting</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-number" id="liveAverage">10 min</div>
+                        <div class="stat-label">Estimated Service Time</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="panel">
+                        <h4 class="fw-bold mb-4">Next in Line</h4>
+                        <div id="liveQueueList"></div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="panel">
+                        <h4 class="fw-bold mb-3">Track Your Token</h4>
+
+                        <form id="trackForm">
+                            <label for="trackToken" class="form-label">
+                                Enter Your Token Number
+                            </label>
+
+                            <div class="input-group">
+                                <input type="text" id="trackToken"
+                                       class="form-control"
+                                       placeholder="SQ-0001" required>
+
+                                <button class="btn btn-primary" type="submit">
+                                    Track
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="trackResult" class="mt-4"
+                             aria-live="polite"></div>
+
+                        <hr class="my-4">
+
+                        <p class="muted small mb-0">
+                            Estimated waiting times are based on the
+                            demonstration's assumed service duration.
+                            Actual times may vary.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ADMIN DASHBOARD -->
+<section id="admin-dashboard" class="page-section hidden-section">
+    <div class="section">
+        <div class="container">
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                <div>
+                    <h2 class="section-title">Admin Dashboard</h2>
+                    <p class="muted mb-0">
+                        Manage customer tokens and queue statuses.
+                    </p>
+                </div>
+
+                <button class="btn btn-outline-primary"
+                        onclick="showSection('home')">
+                    Back to Website
+                </button>
+            </div>
+
+            <div class="demo-note mb-4">
+                <strong>Demo mode:</strong>
+                This dashboard has no real authentication.
+                Do not use it to manage real customer information.
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">🎫</div>
+                        <div class="stat-number" id="statTotal">0</div>
+                        <div class="stat-label">Total Tokens</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-number" id="statWaiting">0</div>
+                        <div class="stat-label">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">🔵</div>
+                        <div class="stat-number" id="statServing">0</div>
+                        <div class="stat-label">Being Served</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-number" id="statCompleted">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                    <h4 class="fw-bold mb-0">Token Management</h4>
+
+                    <button class="btn btn-outline-primary btn-sm"
+                            onclick="exportTokens()">
+                        Export CSV
+                    </button>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-7">
+                        <input type="search" id="adminSearch"
+                               class="form-control"
+                               placeholder="Search token, customer, or service">
+                    </div>
+
+                    <div class="col-md-5">
+                        <select id="adminFilter" class="form-select">
+                            <option value="All">All Statuses</option>
+                            <option value="Waiting">Waiting</option>
+                            <option value="Serving">Serving</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Customer</th>
+                                <th>Service</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="adminTableBody"></tbody>
+                    </table>
+                </div>
+
+                <p class="muted small mb-0">
+                    Status changes affect only this browser's demonstration data.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="row align-items-center g-3">
+            <div class="col-md-6">
+                <h4 class="fw-bold">SmartQueue</h4>
+                <p>Your Turn, Without the Wait.</p>
+            </div>
+
+            <div class="col-md-6 text-md-end">
+                <button class="btn btn-outline-light btn-sm me-2"
+                        onclick="showSection('live-queue')">
+                    Live Queue
+                </button>
+
+                <button class="btn btn-outline-light btn-sm"
+                        onclick="showSection('admin-login')">
+                    Admin Login
+                </button>
+            </div>
+        </div>
+
+        <hr class="border-secondary my-4">
+
+        <p class="small">
+            © <span id="year"></span> SmartQueue.
+            Frontend demonstration project.
+        </p>
+    </div>
+</footer>
+
+
+<!-- ADMIN LOGIN MODAL -->
+<div class="modal fade" id="adminLoginModal" tabindex="-1"
+     aria-labelledby="adminLoginTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="adminLoginTitle">
+                    Admin Access
+                </h5>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="demo-note mb-3">
+                    This HTML-only project does not have a secure
+                    administrator account system.
+                </div>
+
+                <p class="muted">
+                    Open the demonstration dashboard to test token
+                    search, filters, status updates, and CSV export.
+                </p>
+
+                <button class="btn btn-primary w-100"
+                        data-bs-dismiss="modal"
+                        onclick="showSection('admin-dashboard')">
+                    Open Demo Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+"use strict";
+
+/*
+|--------------------------------------------------------------------------
+| SMARTQUEUE FRONTEND DEMO
+|--------------------------------------------------------------------------
+| Data is stored in localStorage.
+| This is not a substitute for a PHP/MySQL backend.
+|--------------------------------------------------------------------------
+*/
+
+const STORAGE_KEY = "smartqueue_demo_tokens_v1";
+const SERVICE_MINUTES = 10;
+
+let tokens = loadTokens();
+let submitting = false;
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+
+/* ---------- STORAGE ---------- */
+
+function loadTokens() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (!saved) {
+            return [];
+        }
+
+        const parsed = JSON.parse(saved);
+
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error("Could not load demo tokens:", error);
+        return [];
+    }
+}
+
+function saveTokens() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
+        return true;
+    } catch (error) {
+        console.error("Could not save demo tokens:", error);
+
+        alert("Your browser could not save the token. Please check browser storage settings.");
+        return false;
+    }
+}
+
+
+/* ---------- NAVIGATION ---------- */
+
+function showSection(sectionId) {
+    if (sectionId === "admin-login") {
+        const modalElement = document.getElementById("adminLoginModal");
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+        modal.show();
+        return;
+    }
+
+    const validSections = [
+        "home",
+        "generate-token",
+        "live-queue",
+        "admin-dashboard"
+    ];
+
+    if (!validSections.includes(sectionId)) {
+        sectionId = "home";
+    }
+
+    document.querySelectorAll(".page-section").forEach(section => {
+        section.classList.add("hidden-section");
+    });
+
+    document.getElementById(sectionId).classList.remove("hidden-section");
+
+    const navbarMenu = document.getElementById("navbarMenu");
+
+    if (navbarMenu.classList.contains("show")) {
+        bootstrap.Collapse.getOrCreateInstance(navbarMenu).hide();
+    }
+
+    history.replaceState(null, "", "#" + sectionId);
+
+    refreshAll();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+
+/* ---------- TOKEN HELPERS ---------- */
+
+function tokenNumber(number) {
+    return "SQ-" + String(number).padStart(4, "0");
+}
+
+function nextTokenNumber() {
+    let highest = 0;
+
+    tokens.forEach(token => {
+        const match = /^SQ-(\d+)$/i.exec(token.id);
+
+        if (match) {
+            highest = Math.max(highest, Number(match[1]));
+        }
+    });
+
+    return highest + 1;
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, character => {
+        const entities = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        };
+
+        return entities[character];
+    });
+}
+
+function formatDate(value) {
+    return new Date(value).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function formatTime(value) {
+    return new Date(value).toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function waitingTokens() {
+    return tokens
+        .filter(token => token.status === "Waiting")
+        .sort((a, b) => a.createdAt - b.createdAt);
+}
+
+function servingTokens() {
+    return tokens
+        .filter(token => token.status === "Serving")
+        .sort((a, b) => a.createdAt - b.createdAt);
+}
+
+function completedTokens() {
+    return tokens.filter(token => token.status === "Completed");
+}
+
+function getQueuePosition(token) {
+    if (token.status === "Completed") {
+        return 0;
+    }
+
+    if (token.status === "Serving") {
+        return 0;
+    }
+
+    const waiting = waitingTokens();
+
+    return waiting.findIndex(item => item.id === token.id) + 1;
+}
+
+function getWaitMinutes(token) {
+    if (token.status === "Completed" || token.status === "Serving") {
+        return 0;
+    }
+
+    const position = getQueuePosition(token);
+    const activeCount = servingTokens().length;
+
+    return Math.max(
+        0,
+        (position + Math.max(0, activeCount - 1)) * SERVICE_MINUTES
+    );
+}
+
+function statusBadge(status) {
+    const classes = {
+        Waiting: "status-waiting",
+        Serving: "status-serving",
+        Completed: "status-completed"
+    };
+
+    return `<span class="status ${classes[status] || ""}">
+        ${escapeHTML(status)}
+    </span>`;
+}
+
+
+/* ---------- GENERATE TOKEN ---------- */
+
+const tokenForm = document.getElementById("tokenForm");
+
+tokenForm.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    if (submitting) {
+        return;
+    }
+
+    const name = document.getElementById("customerName").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const service = document.getElementById("service").value;
+
+    if (name.length < 2) {
+        alert("Please enter a valid customer name.");
+        return;
+    }
+
+    if (!/^[6-9][0-9]{9}$/.test(phone)) {
+        alert("Please enter a valid 10-digit Indian mobile number.");
+        return;
+    }
+
+    if (!service) {
+        alert("Please select a service.");
+        return;
+    }
+
+    submitting = true;
+
+    const button = document.getElementById("generateButton");
+    button.disabled = true;
+    button.textContent = "Generating...";
+
+    try {
+        const now = Date.now();
+
+        const token = {
+            id: tokenNumber(nextTokenNumber()),
+            name: name,
+            phone: phone,
+            service: service,
+            createdAt: now,
+            status: "Waiting"
+        };
+
+        tokens.push(token);
+
+        if (!saveTokens()) {
+            tokens.pop();
+            return;
+        }
+
+        document.getElementById("resultToken").textContent = token.id;
+        document.getElementById("resultPosition").textContent =
+            getQueuePosition(token);
+
+        document.getElementById("resultWait").textContent =
+            getWaitMinutes(token) + " min";
+
+        document.getElementById("resultDate").textContent =
+            formatDate(token.createdAt);
+
+        document.getElementById("resultTime").textContent =
+            formatTime(token.createdAt);
+
+        document.getElementById("tokenResult").style.display = "block";
+
+        document.getElementById("trackToken").value = token.id;
+
+        refreshAll();
+
+        document.getElementById("tokenResult").scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+
+    } finally {
+        submitting = false;
+        button.disabled = false;
+        button.textContent = "Generate My Token";
+    }
+});
+
+
+/* ---------- LIVE QUEUE ---------- */
+
+function renderLiveQueue() {
+    const serving = servingTokens();
+    const waiting = waitingTokens();
+
+    document.getElementById("liveCurrent").textContent =
+        serving.length ? serving[0].id : "None";
+
+    document.getElementById("liveWaiting").textContent = waiting.length;
+
+    document.getElementById("liveAverage").textContent =
+        SERVICE_MINUTES + " min";
+
+    const list = document.getElementById("liveQueueList");
+
+    if (serving.length === 0 && waiting.length === 0) {
+        list.innerHTML = `
+            <div class="text-center py-5">
+                <div style="font-size:42px">🎫</div>
+                <h5 class="mt-3 fw-bold">No customers in the queue</h5>
+                <p class="muted">Generate a token to join the queue.</p>
+                <button class="btn btn-primary"
+                    onclick="showSection('generate-token')">
+                    Generate Token
+                </button>
+            </div>`;
+        return;
+    }
+
+    let html = "";
+
+    serving.forEach(token => {
+        html += `
+            <div class="queue-token current">
+                <div>
+                    <div class="token-label">${escapeHTML(token.id)}</div>
+                    <div class="muted small">${escapeHTML(token.service)}</div>
+                </div>
+
+                <div class="text-end">
+                    ${statusBadge("Serving")}
+                    <div class="small muted mt-2">Now serving</div>
+                </div>
+            </div>`;
+    });
+
+    waiting.forEach((token, index) => {
+        html += `
+            <div class="queue-token">
+                <div>
+                    <div class="token-label">${escapeHTML(token.id)}</div>
+                    <div class="muted small">${escapeHTML(token.service)}</div>
+                </div>
+
+                <div class="text-end">
+                    ${statusBadge("Waiting")}
+                    <div class="small muted mt-2">
+                        Position ${index + 1} · ${getWaitMinutes(token)} min
+                    </div>
+                </div>
+            </div>`;
+    });
+
+    list.innerHTML = html;
+}
+
+
+/* ---------- TRACK TOKEN ---------- */
+
+document.getElementById("trackForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const requested = document.getElementById("trackToken")
+        .value.trim().toUpperCase();
+
+    const token = tokens.find(item => item.id.toUpperCase() === requested);
+    const result = document.getElementById("trackResult");
+
+    if (!token) {
+        result.innerHTML = `
+            <div class="alert alert-warning mb-0">
+                Token not found in this browser.
+                Please check the number and try again.
+            </div>`;
+        return;
+    }
+
+    let message = "";
+
+    if (token.status === "Serving") {
+        message = "It is your turn. Please approach the service counter.";
+    } else if (token.status === "Completed") {
+        message = "This token has been completed.";
+    } else {
+        message = "There are " + Math.max(0, getQueuePosition(token) - 1) +
+            " waiting customer(s) ahead of you.";
+    }
+
+    result.innerHTML = `
+        <div class="info-box">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong class="token-label">${escapeHTML(token.id)}</strong>
+                ${statusBadge(token.status)}
+            </div>
+
+            <p class="mb-2"><strong>Service:</strong>
+                ${escapeHTML(token.service)}</p>
+
+            <p class="mb-2"><strong>Queue position:</strong>
+                ${token.status === "Waiting" ? getQueuePosition(token) : "—"}</p>
+
+            <p class="mb-2"><strong>Estimated wait:</strong>
+                ${getWaitMinutes(token)} min</p>
+
+            <p class="muted small mb-0">${escapeHTML(message)}</p>
+        </div>`;
+});
+
+
+/* ---------- ADMIN DASHBOARD ---------- */
+
+function renderAdmin() {
+    document.getElementById("statTotal").textContent = tokens.length;
+    document.getElementById("statWaiting").textContent =
+        tokens.filter(token => token.status === "Waiting").length;
+
+    document.getElementById("statServing").textContent =
+        tokens.filter(token => token.status === "Serving").length;
+
+    document.getElementById("statCompleted").textContent =
+        tokens.filter(token => token.status === "Completed").length;
+
+    const search = document.getElementById("adminSearch").value
+        .trim().toLowerCase();
+
+    const filter = document.getElementById("adminFilter").value;
+
+    const filtered = [...tokens]
+        .filter(token => {
+            const matchesSearch =
+                token.id.toLowerCase().includes(search) ||
+                token.name.toLowerCase().includes(search) ||
+                token.service.toLowerCase().includes(search);
+
+            const matchesStatus =
+                filter === "All" || token.status === filter;
+
+            return matchesSearch && matchesStatus;
+        })
+        .sort((a, b) => b.createdAt - a.createdAt);
+
+    const body = document.getElementById("adminTableBody");
+
+    if (filtered.length === 0) {
+        body.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center py-5 muted">
+                    No matching tokens found.
+                </td>
+            </tr>`;
+        return;
+    }
+
+    body.innerHTML = filtered.map(token => {
+        let action = "";
+
+        if (token.status === "Waiting") {
+            action = `
+                <button class="btn btn-sm btn-primary"
+                    onclick="updateTokenStatus('${token.id}', 'Serving')">
+                    Serve
+                </button>`;
+        } else if (token.status === "Serving") {
+            action = `
+                <button class="btn btn-sm btn-success"
+                    onclick="updateTokenStatus('${token.id}', 'Completed')">
+                    Complete
+                </button>`;
+        } else {
+            action = `<span class="muted small">Finished</span>`;
+        }
+
+        return `
+            <tr>
+                <td class="fw-bold">${escapeHTML(token.id)}</td>
+                <td>${escapeHTML(token.name)}</td>
+                <td>${escapeHTML(token.service)}</td>
+                <td>${formatTime(token.createdAt)}</td>
+                <td>${statusBadge(token.status)}</td>
+                <td>${action}</td>
+            </tr>`;
+    }).join("");
+}
+
+function updateTokenStatus(id, status) {
+    const token = tokens.find(item => item.id === id);
+
+    if (!token) {
+        alert("Token not found.");
+        return;
+    }
+
+    if (status === "Serving" && servingTokens().length > 0) {
+        alert("A token is already being served in this demo. Complete it first.");
+        return;
+    }
+
+    const previousStatus = token.status;
+    token.status = status;
+
+    if (!saveTokens()) {
+        token.status = previousStatus;
+        return;
+    }
+
+    refreshAll();
+}
+
+document.getElementById("adminSearch").addEventListener("input", renderAdmin);
+
+document.getElementById("adminFilter").addEventListener("change", renderAdmin);
+
+
+/* ---------- EXPORT CSV ---------- */
+
+function exportTokens() {
+    if (tokens.length === 0) {
+        alert("There are no tokens to export.");
+        return;
+    }
+
+    const headers = [
+        "Token",
+        "Customer Name",
+        "Phone",
+        "Service",
+        "Created At",
+        "Status"
+    ];
+
+    function csvCell(value) {
+        let safe = String(value ?? "");
+
+        // Prevent spreadsheet formula injection.
+        if (/^[=+\-@\t\r]/.test(safe)) {
+            safe = "'" + safe;
+        }
+
+        return '"' + safe.replace(/"/g, '""') + '"';
+    }
+
+    const rows = tokens.map(token => [
+        token.id,
+        token.name,
+        token.phone,
+        token.service,
+        new Date(token.createdAt).toISOString(),
+        token.status
+    ]);
+
+    const csv = [headers, ...rows]
+        .map(row => row.map(csvCell).join(","))
+        .join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "smartqueue-tokens.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+}
+
+
+/* ---------- HOME PREVIEW ---------- */
+
+function renderHome() {
+    const serving = servingTokens();
+    const waiting = waitingTokens();
+
+    document.getElementById("heroCurrentToken").textContent =
+        serving.length ? serving[0].id : "--";
+
+    document.getElementById("heroWaiting").textContent = waiting.length;
+
+    document.getElementById("heroWait").textContent =
+        waiting.length ? getWaitMinutes(waiting[0]) + " min" : "0 min";
+}
+
+
+/* ---------- REFRESH ALL ---------- */
+
+function refreshAll() {
+    renderHome();
+    renderLiveQueue();
+    renderAdmin();
+}
+
+// Refresh the frontend's displayed data periodically.
+// This does not synchronize different browsers or devices.
+refreshAll();
+
+setInterval(function() {
+    tokens = loadTokens();
+    refreshAll();
+}, 5000);
+
+
+/* ---------- HASH NAVIGATION ---------- */
+
+window.addEventListener("hashchange", function() {
+    const sectionId = location.hash.replace("#", "");
+
+    if (sectionId) {
+        showSection(sectionId);
+    }
+});
+
+const initialSection = location.hash.replace("#", "");
+
+if (initialSection) {
+    showSection(initialSection);
+}
+</script>
+
+</body>
+</html>
+```
