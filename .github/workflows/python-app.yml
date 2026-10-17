@@ -1,0 +1,57 @@
+name: SmartQueue Python app
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check Python syntax
+        run: python -m py_compile app.py
+
+      - name: Start local app and smoke-test API
+        env:
+          SMARTQUEUE_DATABASE: ${{ runner.temp }}/smartqueue-test.db
+          SMARTQUEUE_OPEN_BROWSER: "0"
+        run: |
+          python app.py > "$RUNNER_TEMP/smartqueue.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          for attempt in $(seq 1 20); do
+            if curl --silent --fail http://127.0.0.1:8000/api/health > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          curl --fail --silent http://127.0.0.1:8000/ > "$RUNNER_TEMP/index.html"
+          grep -q "SmartQueue" "$RUNNER_TEMP/index.html"
+
+          curl --fail --silent http://127.0.0.1:8000/api/tokens \
+            | python -c "import json,sys; data=json.load(sys.stdin); assert data['tokens'] == []; assert data['waiting_count'] == 0"
+
+          curl --fail --silent \
+            -H 'Content-Type: application/json' \
+            -d '{"name":"Alex Johnson","phone":"9876543210","service":"Healthcare"}' \
+            http://127.0.0.1:8000/api/tokens \
+            | python -c "import json,sys; data=json.load(sys.stdin); assert data['token']['token_number'] == 'SQ-0001'; assert data['token']['status'] == 'Waiting'"
+
+          curl --fail --silent http://127.0.0.1:8000/api/tokens \
+            | python -c "import json,sys; data=json.load(sys.stdin); assert data['waiting_count'] == 1; assert data['tokens'][0]['name'] == 'Alex Johnson'"
