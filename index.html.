@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Queue Management System</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+header {
+    background: #0f172a;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+header h2 {
+    margin: 0;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    margin: 8px;
+}
+
+.hero {
+    text-align: center;
+    padding: 65px 20px;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+.hero h1 {
+    font-size: 36px;
+}
+
+.hero p {
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px #00000010;
+}
+
+input {
+    width: 100%;
+    padding: 13px;
+    margin: 10px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    font-size: 16px;
+}
+
+button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    margin: 5px 3px;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+.token {
+    font-size: 36px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.hidden {
+    display: none;
+}
+
+.customer {
+    background: #f8fafc;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+}
+
+footer {
+    text-align: center;
+    background: #0f172a;
+    color: white;
+    padding: 20px;
+}
+
+@media(max-width: 600px) {
+    header {
+        gap: 15px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>SmartQueue</h2>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#register">Register</a>
+        <a href="#track">Track Token</a>
+        <a href="#admin">Admin</a>
+    </nav>
+</header>
+
+<section class="hero" id="home">
+    <h1>Smart Queue Management System</h1>
+
+    <p>
+        Skip long queues. Save your time.
+        Register online and track your token easily.
+    </p>
+
+    <button onclick="showSection('register')">
+        Get Your Token
+    </button>
+</section>
+
+<div class="container">
+
+    <!-- CUSTOMER REGISTRATION -->
+
+    <section class="card" id="register">
+        <h2>Customer Registration</h2>
+
+        <form id="registrationForm">
+
+            <label for="name">Full Name</label>
+            <input
+                type="text"
+                id="name"
+                maxlength="100"
+                placeholder="Enter your name"
+                required
+            >
+
+            <label for="phone">Phone Number</label>
+            <input
+                type="tel"
+                id="phone"
+                maxlength="20"
+                placeholder="Enter your phone number"
+                required
+            >
+
+            <button type="submit">
+                Generate Token
+            </button>
+
+        </form>
+
+        <div id="registrationResult" aria-live="polite"></div>
+    </section>
+
+    <!-- TOKEN TRACKING -->
+
+    <section class="card" id="track">
+        <h2>Track Your Token</h2>
+
+        <input
+            type="text"
+            id="searchToken"
+            placeholder="Enter token, e.g. A001"
+        >
+
+        <button onclick="trackToken()">
+            Check Status
+        </button>
+
+        <div id="trackingResult" aria-live="polite"></div>
+    </section>
+
+    <!-- ADMIN DASHBOARD -->
+
+    <section class="card" id="admin">
+        <h2>Admin Dashboard</h2>
+
+        <p>
+            Demonstration dashboard.
+            Add secure administrator login before public deployment.
+        </p>
+
+        <button onclick="callNext()">
+            Call Next Customer
+        </button>
+
+        <button onclick="refreshQueue()">
+            Refresh Queue
+        </button>
+
+        <div id="adminMessage" aria-live="polite"></div>
+
+        <h3>Customer Queue</h3>
+
+        <div id="queueList"></div>
+    </section>
+
+</div>
+
+<footer>
+    <p>SmartQueue | Save Time, Avoid Queues</p>
+</footer>
+
+<script>
+/*
+ * Single-file demonstration.
+ * Data is stored in this browser's localStorage.
+ * It is not shared between different devices.
+ */
+
+let customers = [];
+
+try {
+    customers = JSON.parse(
+        localStorage.getItem("smartQueueCustomers") || "[]"
+    );
+
+    if (!Array.isArray(customers)) {
+        customers = [];
+    }
+} catch (error) {
+    customers = [];
+}
+
+function saveCustomers() {
+    localStorage.setItem(
+        "smartQueueCustomers",
+        JSON.stringify(customers)
+    );
+}
+
+function showSection(id) {
+    document.getElementById(id).scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+// REGISTER CUSTOMER
+
+document.getElementById("registrationForm")
+.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("name")
+        .value.trim();
+
+    const phone = document.getElementById("phone")
+        .value.trim();
+
+    const result = document.getElementById(
+        "registrationResult"
+    );
+
+    if (!name || !phone) {
+        result.textContent =
+            "Please enter your name and phone number.";
+        return;
+    }
+
+    if (name.length > 100 || phone.length > 20) {
+        result.textContent = "Please check your details.";
+        return;
+    }
+
+    const nextNumber = customers.reduce(
+        (maximum, customer) => {
+            const number = Number(
+                customer.token.replace("A", "")
+            );
+
+            return Math.max(maximum, number);
+        },
+        0
+    ) + 1;
+
+    const token = "A" + String(nextNumber).padStart(3, "0");
+
+    const customer = {
+        name: name,
+        phone: phone,
+        token: token,
+        status: "waiting",
+        createdAt: new Date().toISOString()
+    };
+
+    customers.push(customer);
+
+    saveCustomers();
+
+    result.replaceChildren();
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Registration Successful!";
+
+    const tokenDisplay = document.createElement("div");
+    tokenDisplay.className = "token";
+    tokenDisplay.textContent = token;
+
+    const message = document.createElement("p");
+    message.textContent =
+        "Keep your token number to check your queue status.";
+
+    result.append(heading, tokenDisplay, message);
+
+    document.getElementById("registrationForm").reset();
+
+    refreshQueue();
+});
+
+// TRACK TOKEN
+
+function trackToken() {
+    const token = document.getElementById("searchToken")
+        .value.trim().toUpperCase();
+
+    const result = document.getElementById("trackingResult");
+
+    const customer = customers.find(
+        item => item.token === token
+    );
+
+    result.replaceChildren();
+
+    if (!customer) {
+        result.textContent = "Token not found.";
+        return;
+    }
+
+    const name = document.createElement("p");
+    name.textContent = "Customer: " + customer.name;
+
+    const status = document.createElement("p");
+    status.textContent = "Status: " + customer.status;
+
+    result.append(name, status);
+
+    if (customer.status === "waiting") {
+        const ahead = customers.filter(item =>
+            item.status === "waiting" &&
+            Number(item.token.slice(1)) <
+            Number(customer.token.slice(1))
+        ).length;
+
+        const position = document.createElement("p");
+        position.textContent = "People ahead: " + ahead;
+
+        result.appendChild(position);
+
+    } else if (customer.status === "called") {
+        const message = document.createElement("p");
+        message.textContent = "Your turn has been called!";
+
+        result.appendChild(message);
+
+    } else if (customer.status === "served") {
+        const message = document.createElement("p");
+        message.textContent = "Your service is complete.";
+
+        result.appendChild(message);
+    }
+}
+
+// ADMIN: DISPLAY QUEUE
+
+function refreshQueue() {
+    const queueList = document.getElementById("queueList");
+
+    queueList.replaceChildren();
+
+    if (customers.length === 0) {
+        queueList.textContent = "No customers registered.";
+        return;
+    }
+
+    customers.forEach(customer => {
+        const card = document.createElement("div");
+        card.className = "customer";
+
+        const details = document.createElement("p");
+
+        details.textContent =
+            customer.token + " | " +
+            customer.name + " | " +
+            customer.status;
+
+        card.appendChild(details);
+
+        if (customer.status === "called") {
+            const button = document.createElement("button");
+
+            button.textContent = "Mark Served";
+
+            button.addEventListener("click", function() {
+                customer.status = "served";
+
+                saveCustomers();
+                refreshQueue();
+            });
+
+            card.appendChild(button);
+        }
+
+        queueList.appendChild(card);
+    });
+}
+
+// ADMIN: CALL NEXT CUSTOMER
+
+function callNext() {
+    const customer = customers.find(
+        item => item.status === "waiting"
+    );
+
+    const message = document.getElementById("adminMessage");
+
+    if (!customer) {
+        message.textContent = "No customers are waiting.";
+        return;
+    }
+
+    customer.status = "called";
+
+    saveCustomers();
+
+    message.textContent =
+        "Now serving token " + customer.token +
+        " for " + customer.name + ".";
+
+    refreshQueue();
+}
+
+// INITIALIZE
+
+refreshQueue();
+</script>
+
+</body>
+</html>
